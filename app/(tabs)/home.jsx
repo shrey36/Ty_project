@@ -1,27 +1,23 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import Header from '../../components/Home/Header'
+import { View, StyleSheet } from 'react-native';
+import React from 'react';
+import Header from '../../components/Home/Header';
+import Post from '../../components/Home/Post';
 
-export default function home() {
+export default function Home() {
   return (
-    <View style={{
-      paddingHorizontal: 20,
-      padding:20,
-      backgroundColor:'#fff',
-      
-      
-      
-    }}>
-         
-        {/*  header */}
-           <Header/>
-        {/*  category */}
+    <View style={styles.container}>
+      {/* Header */}
+      <Header />
 
-        {/* List of Post */}
-
+      {/* Post List */}
+      <Post />
     </View>
-  )
+  );
 }
 
-
-
+const styles = StyleSheet.create({
+  container: {
+    // Ensure space for the header
+    backgroundColor: '#fff',
+  },
+});

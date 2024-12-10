@@ -103,12 +103,13 @@ const styles = StyleSheet.create({
         marginHorizontal: 30,
         paddingVertical:15,
         borderRadius:25,
-        borderCurve: 'continuous',
+      
         shadowColor: 'black',
         shadowOffset: { width: 0, height: 10 },
-        shadowRadius: 10,
-        shadowOpacity:0.1
-         
+        shadowRadius: 15,
+        shadowOpacity:0.25,
+        elevation:5,
+        zIndex: 10
 
      },
 
