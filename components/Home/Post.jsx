@@ -1,39 +1,49 @@
-import { View, FlatList } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { View, FlatList, RefreshControl } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query } from 'firebase/firestore';
 import PostList from './PostList';
 import { db } from '../../Config/FirebaseConfig';
 
 export default function Post() {
   const [postList, setPost] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     GetPostList();
-  }, [])
+  }, []);
 
   const GetPostList = async () => {
+    setRefreshing(true); // Start refreshing indicator
     const q = query(collection(db, 'Post'));
     const querySnapshot = await getDocs(q);
-    
-    // Collecting all posts in an array
+
     const posts = [];
     querySnapshot.forEach(doc => {
       posts.push(doc.data());
     });
 
-    // Setting the state once
-    setPost(posts);
-  }
+    setPost(posts); // Update the state with fetched posts
+    setRefreshing(false); // Stop refreshing indicator
+  };
 
   return (
-    <View style={{ marginTop: 60}}> {/* Added marginTop to avoid overlapping with header */}
+    <View style={{ marginTop: 60 }}> {/* Added marginTop to avoid overlapping with header */}
       <FlatList
         data={postList}
         renderItem={({ item, index }) => (
           <PostList post={item} />
         )}
         keyExtractor={(item, index) => index.toString()} // Unique key for FlatList
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={GetPostList} // Trigger refresh when pulled
+            colors={['#0891b2']} // Refresh spinner color for Android
+            tintColor="#0891b2" // Refresh spinner color for iOS
+          />
+        }
       />
-    </View>
-  )
-}
+    </View>   
+  );
+} 
+ 

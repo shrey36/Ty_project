@@ -1,9 +1,22 @@
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
+import {useRouter} from 'expo-router'
 
 export default function PostList({ post }) {
+   {/* Use to travel/Navigate From one folder to next*/}
+  const router=useRouter();
+
   return (
-    <View style={styles.postContainer}>
+    <TouchableOpacity 
+    onPress={()=>router.push({
+        pathname:'/post-details',
+        params:post
+
+    })}
+    style={styles.postContainer}>
+
+
+
       {/* Post Image */}
       <Image
         source={{ uri: post?.imageUrl }}
@@ -18,7 +31,7 @@ export default function PostList({ post }) {
       
       {/* User Name (Optional) */}
       <Text style={styles.userName}>{post?.userName}</Text>
-    </View>
+    </TouchableOpacity>
   );
 }
 
