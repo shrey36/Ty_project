@@ -1,11 +1,45 @@
 import { ImageBackground, Text, View, Pressable } from "react-native";
 import React from "react";
 import Colors from "../../constants/Colors";
+import * as WebBrowser from 'expo-web-browser'
+import { useOAuth } from '@clerk/clerk-expo'
+import * as Linking from 'expo-linking'
+import { useCallback } from "react";
 
+export const useWarmUpBrowser = () => {
+  React.useEffect(() => {
+    // Warm up the android browser to improve UX
+    // https://docs.expo.dev/guides/authentication/#improving-user-experience
+    void WebBrowser.warmUpAsync()
+    return () => {
+      void WebBrowser.coolDownAsync()
+    }
+  }, [])
+}
 
-
+WebBrowser.maybeCompleteAuthSession() 
 
 export default function LoginScreen() {
+
+  useWarmUpBrowser();
+  const { startOAuthFlow } =  useOAuth({ strategy: 'oauth_google' }) 
+   
+  const onPress = useCallback(async () => {
+    try {
+      const { createdSessionId, signIn, signUp, setActive } = await startOAuthFlow({
+        redirectUrl: Linking.createURL('/(tabs)/home', { scheme: 'myapp' }),
+      })
+
+      if (createdSessionId) {
+        {/* the below line in from ChatGPT to just check login work or not 
+        await setActive({ sessionId: createdSessionId });  */}
+      } else {
+        // Use signIn or signUp for next steps such as MFA
+      }
+    } catch (err) {
+      console.error('OAuth error', err)
+    }
+  }, [])
 
 
   return (

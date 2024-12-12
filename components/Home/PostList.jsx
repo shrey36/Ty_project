@@ -1,39 +1,39 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
-import {useRouter} from 'expo-router'
+import { useRouter } from 'expo-router';
 
 export default function PostList({ post }) {
-   {/* Use to travel/Navigate From one folder to next*/}
-  const router=useRouter();
+  const router = useRouter();
 
   return (
-    <TouchableOpacity 
-    onPress={()=>router.push({
-        pathname:'/post-details',
-        params:post
-
-    })}
-    style={styles.postContainer}>
-
-
-
+    <TouchableOpacity
+      onPress={() =>
+        router.push({
+          pathname: '/post-details',
+          params: post,
+        })
+      }
+      style={styles.postContainer}
+    >
       {/* Post Image */}
-      <Image
-        source={{ uri: post?.imageUrl }}
-        style={styles.postImage}
-      />
-      
+      <Image source={{ uri: post?.imageUrl }} style={styles.postImage} />
+
       {/* Caption (Title) */}
       <Text style={styles.caption}>{post?.Caption}</Text>
-      
+
       {/* Date and Time */}
       <Text style={styles.date}>{post?.Date}</Text>
-      
+
       {/* User Name (Optional) */}
       <Text style={styles.userName}>{post?.userName}</Text>
     </TouchableOpacity>
   );
 }
+
+// Sorting the posts by timestamp when displaying them (usually in the parent component)
+export const sortPostsByTimestamp = (posts) => {
+  return posts.sort((a, b) => b?.timestamp?.seconds - a?.timestamp?.seconds); // b to show latest first
+};
 
 const styles = StyleSheet.create({
   postContainer: {

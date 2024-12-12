@@ -1,8 +1,9 @@
-import { View, Text } from 'react-native'
+import { View, Text, ScrollView } from 'react-native'
 import React, { useEffect } from 'react'
 import { useLocalSearchParams, useNavigation } from 'expo-router'
 import PostInfo from '../../components/PostDetails/PostInfo';
 import About from '../../components/PostDetails/About';
+import OwnerInfo from '../../components/PostDetails/OwnerInfo';
 
 export default function PostDetails() {
  
@@ -21,7 +22,8 @@ export default function PostDetails() {
 
   return (
     <View>
-         
+         <ScrollView>
+        
          {/* Post Info*/}
          <PostInfo post={post} />
   
@@ -32,6 +34,8 @@ export default function PostDetails() {
 
         {/* Owner details */}
 
+       
+        </ScrollView>
 
 
     </View>
