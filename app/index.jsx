@@ -8,7 +8,7 @@ export default function Index() {
 
   {/* all the user info from below */ }
   const { user } = useUser();
-
+ 
   const rootNavigationState = useRootNavigationState()
 
   useEffect(() => {

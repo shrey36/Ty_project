@@ -1,10 +1,11 @@
-import { View, Text, FlatList, RefreshControl } from 'react-native';
+import { View, Text, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Shared from './../../Shared/Shared';
 import { useUser } from '@clerk/clerk-expo';
 import { collection, query, getDocs, where } from 'firebase/firestore';
 import { db } from '../../Config/FirebaseConfig';
 import PostList from './../../components/Home/PostList';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function Saved() {
   const { user } = useUser();
@@ -28,6 +29,7 @@ export default function Saved() {
 
   // Fetch related posts based on favorite post IDs
   const GetFavPostList = async (favIds) => {
+    setFavPostList([])
     if (!favIds || favIds.length === 0) return; // Guard clause for empty favorite IDs
 
     // Create a query to fetch posts where the post ID is in the list of favorite post IDs
@@ -53,15 +55,32 @@ export default function Saved() {
   };
 
   return (
-    <View style={{ padding: 15, margin: 1 }}>
-      <Text style={{ fontFamily: 'outfit-medium', fontSize: 30 }}>Saved</Text>
+    <View style={{ flex: 1, backgroundColor: '#F9F9F9' }}> {/* Lighter background for the screen */}
+      {/* Header Section */}
+      <View style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20, // Increased padding for more space
+        paddingVertical: 15,   // Increased vertical padding for header
+        backgroundColor: 'white',  // White background for the header
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd'  // Light grey line under the header
+      }}>
+        <Text style={{
+          fontFamily: 'outfit-medium',
+          fontSize: 32, // Increased font size for header
+          fontWeight: 'bold',
+          color: '#333', // Darker color for better readability
+        }}>Saved</Text>
+      </View>
 
       {/* FlatList to display the list of favorite posts */}
       <FlatList
         data={favPostList} // Set the data for the FlatList
         keyExtractor={(item) => item.id.toString()} // Use the post ID as the key for each item
         renderItem={({ item }) => (
-          <View>
+          <View style={{ marginHorizontal: 15, marginBottom: 15 }}> {/* Add margin for posts */}
             <PostList post={item} /> {/* Render each post using the PostList component */}
           </View>
         )}

@@ -21,11 +21,11 @@ export default function PostList({ post }) {
       {/* Caption (Title) */}
       <Text style={styles.caption}>{post?.Caption}</Text>
 
-      {/* Date and Time */}
-      <Text style={styles.date}>{post?.Date}</Text>
-
       {/* User Name (Optional) */}
       <Text style={styles.userName}>{post?.userName}</Text>
+
+      {/* Date and Time */}
+      <Text style={styles.date}>{post?.Date}</Text>
     </TouchableOpacity>
   );
 }
@@ -37,40 +37,35 @@ export const sortPostsByTimestamp = (posts) => {
 
 const styles = StyleSheet.create({
   postContainer: {
-    marginBottom: 20, // Add some space between posts
     backgroundColor: '#fff', // White background for posts
-    borderRadius: 10, // Rounded corners
-    overflow: 'hidden', // To keep the image and elements inside the post container
-    shadowColor: '#000', // Shadow for a subtle elevation effect
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 3, // For Android shadow effect
-    marginHorizontal: 16, // To give space on the sides
+    borderBottomWidth: 1, // Border line separating each post (similar to Reddit)
+    borderColor: '#ddd', // Light gray border color
+    paddingVertical: 10, // Padding for vertical spacing
+    paddingHorizontal: 16, // Horizontal padding for left and right
+    marginBottom: 15, // Space between posts
   },
   postImage: {
     width: '100%', // Image will take up full width
-    height: 200, // Fixed height for the image
-    resizeMode: 'cover', // Cover the area properly
+    height: 250, // Image height
+    resizeMode: 'cover', // Ensure proper aspect ratio while covering the area
+    borderRadius: 5, // Rounded corners for the image
   },
   caption: {
-    fontSize: 16,
-    fontFamily: 'outfit-bold', // Use the provided font
-    marginTop: 10,
-    marginHorizontal: 12,
-  },
-  date: {
-    fontFamily: 'outfit-medium',
-    fontSize: 14,
-    color: '#555', // Lighter color for date
-    marginTop: 5,
-    marginLeft: 12,
+    fontSize: 16, // Standard font size for captions
+    fontFamily: 'outfit-bold', // Bold font for emphasis
+    marginTop: 10, // Space between the image and caption
+    color: '#333', // Dark color for readability
   },
   userName: {
-    fontFamily: 'outfit-medium',
-    fontSize: 14,
-    color: '#007BFF', // Blue color for the user name
-    marginTop: 5,
-    marginLeft: 12,
+    fontSize: 14, // Smaller size for the username
+    fontFamily: 'outfit-medium', // Regular font for user names
+    color: '#007BFF', // Blue color for clickable username
+    marginTop: 5, // Space between the caption and the username
+  },
+  date: {
+    fontSize: 12, // Smaller font size for the date
+    fontFamily: 'outfit-medium', // Medium weight for date
+    color: '#777', // Light gray color for the date
+    marginTop: 5, // Space between the username and date
   },
 });

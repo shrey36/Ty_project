@@ -2,6 +2,7 @@ import { View, StyleSheet, Text, ScrollView, Touchable, TouchableOpacity } from 
 import React from 'react';
 import Header from '../../components/Home/Header';
 import Post from '../../components/Home/Post';
+import { Link } from 'expo-router';
 
 export default function Home() {
   return (
@@ -15,9 +16,10 @@ export default function Home() {
       </View>
 
       {/* Adding new post */}
-      <TouchableOpacity style={styles.addNewPost}>
+      <Link href={'/add-new-post'} 
+      style={styles.addNewPost}>
         <Text style={styles.addNewPostText}>Add new post</Text>
-      </TouchableOpacity>
+      </Link>
 
 
     </View>

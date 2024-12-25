@@ -30,7 +30,7 @@ export default function PostInfo({ post }) {
           marginTop: 12,   // Space between image and text
         }}
       >
-        <View style={{ flex: 1, marginRight: 10 }}>
+        <View style={{ flex: 1,  marginRight: 10,marginLeft:-9 }}>
           <Text
             style={{
               fontFamily: 'outfit-bold',
@@ -50,7 +50,10 @@ export default function PostInfo({ post }) {
           
         </View>
 
-        <MarkFav post={post}/>
+         {/* Aligning MarkFav (bookmark) icon to the right */}
+         <View style={{ justifyContent: 'flex-end', alignItems: 'flex-end', marginRight:-14 }}>
+          <MarkFav post={post} />
+        </View>
 
       </View>
     </View>
