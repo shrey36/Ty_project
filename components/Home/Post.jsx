@@ -27,7 +27,7 @@ export default function Post() {
   };
 
   return (
-    <View style={{ marginTop: 60 }}> {/* Added marginTop to avoid overlapping with header */}
+    <View style={{  }}> {/* Added marginTop to avoid overlapping with header */}
       <FlatList
         data={postList}
         renderItem={({ item, index }) => (

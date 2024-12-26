@@ -58,21 +58,16 @@ export default function Saved() {
     <View style={{ flex: 1, backgroundColor: '#F9F9F9' }}> {/* Lighter background for the screen */}
       {/* Header Section */}
       <View style={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20, // Increased padding for more space
-        paddingVertical: 15,   // Increased vertical padding for header
-        backgroundColor: 'white',  // White background for the header
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd'  // Light grey line under the header
+       // flexDirection: 'row',
+       // justifyContent: 'space-between',
+       // alignItems: 'center',
+       // paddingHorizontal: 20, // Increased padding for more space
+        // paddingVertical: 15,   // Increased vertical padding for header
+        // backgroundColor: 'white',  // White background for the header
+        // borderBottomWidth: 1,
+        // borderBottomColor: '#ddd'  // Light grey line under the header
       }}>
-        <Text style={{
-          fontFamily: 'outfit-medium',
-          fontSize: 32, // Increased font size for header
-          fontWeight: 'bold',
-          color: '#333', // Darker color for better readability
-        }}>Saved</Text>
+      
       </View>
 
       {/* FlatList to display the list of favorite posts */}

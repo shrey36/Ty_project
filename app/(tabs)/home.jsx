@@ -7,8 +7,8 @@ import { Link } from 'expo-router';
 export default function Home() {
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <Header />
+      {/* Header 
+      <Header />  */}
 
       {/* Post List */}
       <View style={styles.postContainer}>
