@@ -19,7 +19,10 @@ export default function Post() {
 
     const posts = [];
     querySnapshot.forEach(doc => {
-      posts.push(doc.data());
+      posts.push({
+        id: doc.id,
+        ...doc.data(),
+      });
     });
 
     setPost(posts); // Update the state with fetched posts
@@ -27,7 +30,8 @@ export default function Post() {
   };
 
   return (
-    <View style={{  }}> {/* Added marginTop to avoid overlapping with header */}
+    //{/* Added marginTop to avoid overlapping with header */}
+    <View style={{  }}> 
       <FlatList
         data={postList}
         renderItem={({ item, index }) => (

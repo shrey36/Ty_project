@@ -55,7 +55,9 @@ export default function Saved() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F9F9F9' }}> {/* Lighter background for the screen */}
+
+                      // Lighter background for the screen 
+    <View style={{ flex: 1, backgroundColor: '#F9F9F9' }}> 
       {/* Header Section */}
       <View style={{
        // flexDirection: 'row',
@@ -70,12 +72,14 @@ export default function Saved() {
       
       </View>
 
-      {/* FlatList to display the list of favorite posts */}
+      
       <FlatList
+           // FlatList to display the list of favorite posts 
         data={favPostList} // Set the data for the FlatList
         keyExtractor={(item) => item.id.toString()} // Use the post ID as the key for each item
         renderItem={({ item }) => (
-          <View style={{ marginHorizontal: 15, marginBottom: 15 }}> {/* Add margin for posts */}
+                     // Add margin for posts 
+          <View style={{ marginHorizontal: 15, marginBottom: 15 }}> 
             <PostList post={item} /> {/* Render each post using the PostList component */}
           </View>
         )}

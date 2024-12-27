@@ -1,9 +1,12 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
+import OwnerInfo from '../PostDetails/OwnerInfo';
 
 export default function PostList({ post }) {
   const router = useRouter();
+  const navigation = useNavigation();
 
   return (
     <TouchableOpacity
@@ -15,15 +18,21 @@ export default function PostList({ post }) {
       }
       style={styles.postContainer}
     >
+      <TouchableOpacity
+        onPress={() => 
+          navigation.navigate('Profile')
+        }
+      style={{marginLeft:-28}}>
+        <OwnerInfo  post={post} />
+      </TouchableOpacity>
+
       {/* Post Image */}
-      <Image source={{ uri: post?.imageUrl }} style={styles.postImage} />
+      <Image source={{ uri: post?.imageUrl }} style={styles.postImage}/>
 
       {/* Caption (Title) */}
       <Text style={styles.caption}>{post?.Caption}</Text>
 
-      {/* User Name (Optional) */}
-      <Text style={styles.userName}>{post?.userName}</Text>
-
+     
       {/* Date and Time */}
       <Text style={styles.date}>{post?.Date}</Text>
     </TouchableOpacity>
@@ -56,12 +65,7 @@ const styles = StyleSheet.create({
     marginTop: 10, // Space between the image and caption
     color: '#333', // Dark color for readability
   },
-  userName: {
-    fontSize: 14, // Smaller size for the username
-    fontFamily: 'outfit-medium', // Regular font for user names
-    color: '#007BFF', // Blue color for clickable username
-    marginTop: 5, // Space between the caption and the username
-  },
+
   date: {
     fontSize: 12, // Smaller font size for the date
     fontFamily: 'outfit-medium', // Medium weight for date

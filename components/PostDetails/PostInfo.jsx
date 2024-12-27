@@ -5,10 +5,16 @@ import OwnerInfo from './OwnerInfo';
 import MarkFav from '../MarkFav';
 
 export default function PostInfo({ post }) {
+
+    // Debugging: Log the post object to check its contents
+  console.log('Post Object in PostInfo:', JSON.stringify(post, (key, value) => (typeof value === 'object' && value !== null ? JSON.stringify(value) : value), 2));
+
   return (
-                  
-    <View style={{ backgroundColor: 'whitesmoke', paddingHorizontal: 16 }}>  {/* Added padding for left-right space */}
-      <OwnerInfo post={post} />
+                       // Added padding for left-right space 
+    <View style={{ backgroundColor: 'whitesmoke', paddingHorizontal: 16 }}>
+      
+      
+      
 
       <Image
         source={{ uri: post.imageUrl }}

@@ -33,7 +33,7 @@ export default function PostDetails() {
         <About post={post}/>
 
         {/* Owner details */}
-
+        
        
         </ScrollView>
 
