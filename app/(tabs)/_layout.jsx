@@ -8,7 +8,11 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import TabBar from '../../components/TabBar';
 import Debate from './../Debate';
 import Live from './../Live';
+import * as Linking from 'expo-linking'
+import Search from './../Search';
+import Notification from './../Notification';
 import customDrawerContent from './../../components/customDrawerContent';
+import { View, StyleSheet } from 'react-native';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -32,18 +36,38 @@ function TabLayout() {
         options={{
           title: 'inflow',
           headerShown: true,
-          headerTitleStyle: { color: 'blue' },
+          headerTitleStyle: { color: '#007AFF', fontSize:24,fontWeight:'bold' },
           headerLeft: () => (
             <Ionicons
               name="menu"
-              size={24}
+              size={26}
               color="black"
               style={{ marginLeft: 10 }}
               onPress={() => navigation.openDrawer()}
             />
           ),
+          headerRight: () => (
+            <View style={styles.headerRight}>
+              <Ionicons
+                name="notifications-outline"
+                size={24}
+                color="black"
+                style={{ marginRight: 10 }}
+                onPress={() => navigation.navigate('Notification')}
+              />
+              <Ionicons
+                name="search"
+                size={24}
+                color="black"
+                style={{ marginRight: 13 }}
+                onPress={() => navigation.navigate('Search')}
+              />
+            </View>
+          ),
         }}
       />
+
+      {/* Reels */}
       <Tabs.Screen
         name="Reels"
         options={{
@@ -60,6 +84,8 @@ function TabLayout() {
           ),
         }}
       />
+
+      {/* Saved */}
       <Tabs.Screen
         name="Saved"
         options={{
@@ -76,6 +102,8 @@ function TabLayout() {
           ),
         }}
       />
+
+      {/* Profile */}
       <Tabs.Screen
         name="Profile"
         options={{
@@ -98,6 +126,35 @@ function TabLayout() {
 
 // Main Drawer Layout
 export default function MainLayout() {
+
+  useEffect(() => {
+    const handleDeepLink = (event) => {
+      const url = Linking.parse(event.url);
+      if (url.path === 'home') {
+        navigation.navigate('Home', { screen: 'home' });
+      } else if (url.path === 'notification') {
+        navigation.navigate('Notification');
+      } else if (url.path === 'search') {
+        navigation.navigate('Search');
+      } else if (url.path === 'debate') {
+        navigation.navigate('Debate');
+      } else if (url.path === 'live') {
+        navigation.navigate('Live');
+      }
+    };
+
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        handleDeepLink({ url });
+      }
+    });
+
+    const unsubscribe = Linking.addEventListener('url', handleDeepLink);
+
+    return () => unsubscribe();
+  }, []);
+
+  
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer.Navigator
@@ -152,12 +209,23 @@ export default function MainLayout() {
           options={{
             drawerLabel: 'Live',
             drawerIcon: ({ size, color }) => (
-              <Ionicons name="videocam" size={size} color={color} />
+              <Ionicons name="radio" size={24} color="black" />
             ),
             headerShown: true,
           }}
         />
+
+
+          
+
       </Drawer.Navigator>
     </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+});

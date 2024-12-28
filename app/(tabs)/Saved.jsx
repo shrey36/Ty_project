@@ -80,7 +80,8 @@ export default function Saved() {
         renderItem={({ item }) => (
                      // Add margin for posts 
           <View style={{ marginHorizontal: 15, marginBottom: 15 }}> 
-            <PostList post={item} /> {/* Render each post using the PostList component */}
+          {/* Render each post using the PostList component */}
+            <PostList post={item} /> 
           </View>
         )}
         // Add pull-to-refresh functionality
