@@ -1,24 +1,23 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity, Share, Alert, Modal } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { View, Text, StyleSheet, TouchableOpacity, Share, Alert, Modal } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import OwnerInfo from '../PostDetails/OwnerInfo';
+import OwnerInfo from './OwnerInfo';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import * as Linking from 'expo-linking';
 import { reportPost } from '../../Shared/reportPost';
 import ReportModal from '../../Shared/ReportModel';
 import Comment from './Comment';
 import { getFirestore, collection, query, where, onSnapshot } from 'firebase/firestore';
 import { app } from '../../Config/FirebaseConfig';
+import { Video } from 'expo-av';
+import MarkFav from './MarkFav';
 
 const db = getFirestore(app);
 
-export default function PostList({ post, userId, userName }) {
-  const router = useRouter();
+export default function ReelsList({ reels }) {
   const navigation = useNavigation();
-  const [isReportModalVisible, setReportModalVisible] = useState(false); // Report part
-  const [isCommentModalVisible, setCommentModalVisible] = useState(false); // Comment Part
-  const [commentCount, setCommentCount] = useState(0); // Comment Count
+  const [isReportModalVisible, setReportModalVisible] = useState(false);
+  const [isCommentModalVisible, setCommentModalVisible] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
 
   const openCommentModal = () => {
     setCommentModalVisible(true);
@@ -28,13 +27,13 @@ export default function PostList({ post, userId, userName }) {
     setCommentModalVisible(false);
   };
 
-  const extractedUserName = post?.user?.name || userName || 'Unknown';
-  const extractedUserId = post?.user?.id || userId || 'Unknown';
+  const extractedUserName = reels?.user?.name || 'Unknown';
+  const extractedUserId = reels?.user?.id || 'Unknown';
 
   const onShare = async () => {
     try {
-      const deepLinkUrl = `inflow://home/post/${post.id}`; // Use your deep link scheme
-      const message = `Check out this post: ${post.Caption}\n${deepLinkUrl}`;
+      const deepLinkUrl = `inflow://home/Reels/${reels.id}`;
+      const message = `Check out this video: ${reels.Caption}\n${deepLinkUrl}`;
 
       const result = await Share.share({
         message,
@@ -54,47 +53,37 @@ export default function PostList({ post, userId, userName }) {
     }
   };
 
-  // Report calling
   const onReport = async (reason) => {
     const ownerInfo = {
-      name: post.user.name, // Assuming post.user.name contains the owner's name
-      email: post.user.email, // Assuming post.user.email contains the owner's email
+      name: reels.user.name,
+      email: reels.user.email,
     };
-    await reportPost(post.id, 'userId', reason, ownerInfo);
-    Alert.alert('Post Reported', 'Your report has been submitted successfully.');
+    await reportPost(reels.id, 'userId', reason, ownerInfo);
+    Alert.alert('Video Reported', 'Your report has been submitted successfully.');
   };
 
   useEffect(() => {
-    if (!post?.id) return;
+    if (!reels?.id) return;
 
     const commentsCollection = collection(db, 'comments');
-    const q = query(commentsCollection, where('postId', '==', post.id));
+    const q = query(commentsCollection, where('reelId', '==', reels.id));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       setCommentCount(querySnapshot.size);
     });
 
     return () => unsubscribe();
-  }, [post?.id]);
+  }, [reels?.id]);
 
   return (
-    <TouchableOpacity
-      onPress={() =>
-        router.push({
-          pathname: '/post-details',
-          params: post,
-        })
-      }
-      style={styles.postContainer}
-    >
+    <View style={styles.videoContainer}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.navigate('Profile')}
           style={styles.ownerInfoContainer}
         >
-          <OwnerInfo post={post} />
+          <OwnerInfo reels={reels} />
         </TouchableOpacity>
 
-        {/* Report */}
         <TouchableOpacity
           onPress={() => setReportModalVisible(true)}
           style={styles.reportButton}
@@ -103,10 +92,15 @@ export default function PostList({ post, userId, userName }) {
         </TouchableOpacity>
       </View>
 
-      {/* Post Image */}
-      <Image source={{ uri: post?.imageUrl }} style={styles.postImage} />
+      <Video
+        source={{ uri: reels?.videoUrl }}
+        style={styles.video}
+        resizeMode="cover"
+        useNativeControls
+        isLooping
+        onError={(error) => console.error('Video error:', error)} // Add error handling
+      />
 
-      {/* Comments */}
       <View style={styles.commentsContainer}>
         <TouchableOpacity
           style={styles.comments}
@@ -115,25 +109,22 @@ export default function PostList({ post, userId, userName }) {
           <Ionicons name="chatbubble-outline" size={24} color="black" />
           <Text style={styles.commentCount}>{commentCount}</Text>
         </TouchableOpacity>
-      </View>
 
-      {/* Share */}
-      <View style={styles.shareContainer}>
         <TouchableOpacity
-          onPress={onShare}
           style={styles.shareButton}
+          onPress={onShare}
         >
           <Ionicons name="share-outline" size={26} color="black" />
         </TouchableOpacity>
       </View>
 
-      {/* Caption (Title) */}
-      <Text style={styles.caption}>{post?.Caption}</Text>
+      <View style={styles.shareContainer}>
+        <MarkFav reels={reels}  />
+      </View>
 
-      {/* Date and Time */}
-      <Text style={styles.date}>{post?.Date}</Text>
+      <Text style={styles.caption}>{reels?.Caption}</Text>
+      <Text style={styles.date}>{reels?.Date}</Text>
 
-      {/* Comment Modal */}
       <Modal
         visible={isCommentModalVisible}
         animationType="slide"
@@ -143,34 +134,28 @@ export default function PostList({ post, userId, userName }) {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalHeader}>Comments</Text>
-            <Comment postId={post?.id} onClose={closeCommentModal} userName={extractedUserName} userId={extractedUserId} />
+            <Comment reelId={reels?.id} onClose={closeCommentModal} userName={extractedUserName} userId={extractedUserId} />
           </View>
         </View>
       </Modal>
 
-      {/* Report Modal */}
       <ReportModal
         isVisible={isReportModalVisible}
         onClose={() => setReportModalVisible(false)}
         onReport={onReport}
       />
-    </TouchableOpacity>
+    </View>
   );
 }
 
-// Sorting the posts by timestamp when displaying them (usually in the parent component)
-export const sortPostsByTimestamp = (posts) => {
-  return posts.sort((a, b) => b?.timestamp?.seconds - a?.timestamp?.seconds); // b to show latest first
-};
-
 const styles = StyleSheet.create({
-  postContainer: {
-    backgroundColor: '#fff', // White background for posts
-    borderBottomWidth: 1, // Border line separating each post (similar to Reddit)
-    borderColor: '#ddd', // Light gray border color
-    paddingVertical: 10, // Padding for vertical spacing
-    paddingHorizontal: 16, // Horizontal padding for left and right
-    marginBottom: 15, // Space between posts
+  videoContainer: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginBottom: 15,
   },
   header: {
     flexDirection: 'row',
@@ -185,11 +170,11 @@ const styles = StyleSheet.create({
   reportButton: {
     marginRight: -5,
   },
-  postImage: {
-    width: '100%', // Image will take up full width
-    height: 250, // Image height
-    resizeMode: 'cover', // Ensure proper aspect ratio while covering the area
-    borderRadius: 5, // Rounded corners for the image
+  video: {
+    width: '100%',
+    height: 250,
+    resizeMode: 'cover',
+    borderRadius: 5,
   },
   commentsContainer: {
     flexDirection: 'row',
@@ -206,6 +191,7 @@ const styles = StyleSheet.create({
   shareButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginLeft: 10, // Add margin to separate from the comment icon
   },
   comments: {
     flexDirection: 'row',
@@ -217,16 +203,16 @@ const styles = StyleSheet.create({
     color: '#555',
   },
   caption: {
-    fontSize: 16, // Standard font size for captions
-    fontFamily: 'outfit-bold', // Bold font for emphasis
-    marginTop: 10, // Space between the image and caption
-    color: '#333', // Dark color for readability
+    fontSize: 16,
+    fontFamily: 'outfit-bold',
+    marginTop: 10,
+    color: '#333',
   },
   date: {
-    fontSize: 12, // Smaller font size for the date
-    fontFamily: 'outfit-medium', // Medium weight for date
-    color: '#777', // Light gray color for the date
-    marginTop: 5, // Space between the username and date
+    fontSize: 12,
+    fontFamily: 'outfit-medium',
+    color: '#777',
+    marginTop: 5,
   },
   modalContainer: {
     flex: 1,

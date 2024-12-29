@@ -22,12 +22,14 @@ function TabLayout() {
   const navigation = useNavigation();
 
   // Reset the tab to 'home' when focused
+  {/*
   useFocusEffect(
     React.useCallback(() => {
       const parentNavigation = navigation.getParent(); // Access Drawer navigation
       parentNavigation.setParams({ screen: 'home' }); // Reset to 'home'
     }, [])
   );
+  */}
 
   return (
     <Tabs tabBar={(props) => <TabBar {...props} />}>
@@ -126,6 +128,8 @@ function TabLayout() {
 
 // Main Drawer Layout
 export default function MainLayout() {
+  //
+  const navigation = useNavigation();
 
   useEffect(() => {
     const handleDeepLink = (event) => {
@@ -171,7 +175,7 @@ export default function MainLayout() {
           },
         }}
       >
-        {/* Drawer Screen for Tabs */}
+        {/* Drawer Screen for Tabs
         <Drawer.Screen
           name="Home"
           component={TabLayout}
@@ -188,6 +192,18 @@ export default function MainLayout() {
             headerShown: false,
           }}
         />
+         */}
+
+          <Drawer.Screen
+          name="Home"
+          component={TabLayout}
+          options={{
+          drawerLabel: 'Home',
+          drawerIcon: ({ size, color }) => (
+          <Ionicons name="home" size={size} color={color} />
+          ),
+          headerShown: false,
+          }}/>
 
         {/* Drawer Screen for Debate */}
         <Drawer.Screen
