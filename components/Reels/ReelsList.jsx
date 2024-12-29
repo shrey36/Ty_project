@@ -9,7 +9,7 @@ import Comment from './Comment';
 import { getFirestore, collection, query, where, onSnapshot } from 'firebase/firestore';
 import { app } from '../../Config/FirebaseConfig';
 import { Video } from 'expo-av';
-import MarkFav from './MarkFav';
+import MarkFav from './MarkFavReels';
 
 const db = getFirestore(app);
 

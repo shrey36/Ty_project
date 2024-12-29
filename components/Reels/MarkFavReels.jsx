@@ -1,10 +1,10 @@
 import { View, Pressable } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import Shared from './../../Shared/Shared';
+import Shared from '../../Shared/Shared';
 import { useUser } from '@clerk/clerk-expo';
 
-export default function MarkFav({ reels }) {
+export default function MarkFavReel({ reels }) {
     const { user } = useUser();
     const [favList, setFavList] = useState([]);
 
