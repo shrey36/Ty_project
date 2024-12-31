@@ -1,24 +1,26 @@
+// PostList.jsx
 import { View, Text, Image, StyleSheet, TouchableOpacity, Share, Alert, Modal } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import OwnerInfo from '../PostDetails/OwnerInfo';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import * as Linking from 'expo-linking';
 import { reportPost } from '../../Shared/reportPost';
 import ReportModal from '../../Shared/ReportModel';
 import Comment from './Comment';
 import { getFirestore, collection, query, where, onSnapshot } from 'firebase/firestore';
 import { app } from '../../Config/FirebaseConfig';
+import LikePost from './LikePost'; // Import the LikePost component
 
 const db = getFirestore(app);
 
-export default function PostList({ post, userId, userName }) {
+export default function PostList({ post, userName }) {
   const router = useRouter();
   const navigation = useNavigation();
   const [isReportModalVisible, setReportModalVisible] = useState(false); // Report part
   const [isCommentModalVisible, setCommentModalVisible] = useState(false); // Comment Part
   const [commentCount, setCommentCount] = useState(0); // Comment Count
+  const userId = 'currentUserId'; // Replace with the actual user ID
 
   const openCommentModal = () => {
     setCommentModalVisible(true);
@@ -106,8 +108,9 @@ export default function PostList({ post, userId, userName }) {
       {/* Post Image */}
       <Image source={{ uri: post?.imageUrl }} style={styles.postImage} />
 
-      {/* Comments */}
-      <View style={styles.commentsContainer}>
+      {/* Like and Comments */}
+      <View style={styles.likeCommentContainer}>
+        <LikePost postId={post.id} userId={userId} initialLikeCount={post.likeCount || 0} />
         <TouchableOpacity
           style={styles.comments}
           onPress={openCommentModal}
@@ -191,7 +194,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover', // Ensure proper aspect ratio while covering the area
     borderRadius: 5, // Rounded corners for the image
   },
-  commentsContainer: {
+  likeCommentContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -210,6 +213,7 @@ const styles = StyleSheet.create({
   comments: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginLeft: 10, // Add margin to separate from the like icon
   },
   commentCount: {
     marginLeft: 5,

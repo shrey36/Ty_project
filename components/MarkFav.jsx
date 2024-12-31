@@ -35,10 +35,10 @@ export default function MarkFav({ post }) {
         <View>
             {favList.includes(post.id) ?
                 <Pressable onPress={removeFromFav}>
-                    <Ionicons name="bookmark" size={30} color="#68ceed" />
+                    <Ionicons name="bookmark" size={30} color="black" />
                 </Pressable> :
                 <Pressable onPress={AddToFav}>
-                    <Ionicons name="bookmark-outline" size={30} color="#68ceed" />
+                    <Ionicons name="bookmark-outline" size={30} color="black" />
                 </Pressable>}
         </View>
     )

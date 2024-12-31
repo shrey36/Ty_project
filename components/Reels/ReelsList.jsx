@@ -9,7 +9,8 @@ import Comment from './Comment';
 import { getFirestore, collection, query, where, onSnapshot } from 'firebase/firestore';
 import { app } from '../../Config/FirebaseConfig';
 import { Video } from 'expo-av';
-import MarkFav from './MarkFavReels';
+import MarkFavReel from './MarkFavReels';
+import LikeReels from './LikeReels'; // Import the LikeReels component
 
 const db = getFirestore(app);
 
@@ -18,6 +19,7 @@ export default function ReelsList({ reels }) {
   const [isReportModalVisible, setReportModalVisible] = useState(false);
   const [isCommentModalVisible, setCommentModalVisible] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
+  const userId = 'currentUserId'; // Replace with the actual user ID
 
   const openCommentModal = () => {
     setCommentModalVisible(true);
@@ -119,7 +121,8 @@ export default function ReelsList({ reels }) {
       </View>
 
       <View style={styles.shareContainer}>
-        <MarkFav reels={reels}  />
+        <LikeReels reelId={reels.id} userId={userId} initialLikeCount={reels.likeCount || 0} />
+        <MarkFavReel reels={reels} />
       </View>
 
       <Text style={styles.caption}>{reels?.Caption}</Text>
