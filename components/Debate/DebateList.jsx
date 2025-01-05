@@ -80,7 +80,7 @@ export default function DebateList({ debate }) {
     <View style={styles.videoContainer}>
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Profile')}
+          onPress={() => navigation.navigate('/tabs/Profile')}
           style={styles.ownerInfoContainer}
         >
           <OwnerInfo debate={debate} />
@@ -95,6 +95,7 @@ export default function DebateList({ debate }) {
       </View>
 
       <Video
+       //source={debate?.videoUrl ? { uri: debate.videoUrl } : require('./../../assets/Videos/Responsive Food And Restaurant Website Using Bootstrap 5 ｜ Bootstrap 5 Responsive Website Design #2.mp4')} // Use local video if debate.videoUrl is not provided
         source={{ uri: debate?.videoUrl }}
         style={styles.video}
         resizeMode="cover"

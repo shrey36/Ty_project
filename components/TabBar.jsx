@@ -92,35 +92,59 @@ const TabBar = ({state, descriptors, navigation} ) => {
   )
 }
 
-const styles = StyleSheet.create({
-     tabbar: {
-        position: 'absolute',
-        bottom: 25,
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        backgroundColor: 'white',
-        marginHorizontal: 30,
-        paddingVertical:15,
-        borderRadius:25,
+// const styles = StyleSheet.create({
+//      tabbar: {
+//         position: 'absolute',
+//         bottom: 25,
+//         flexDirection: 'row',
+//         justifyContent: 'space-around',
+//         alignItems: 'center',
+//         backgroundColor: 'white',
+//         marginHorizontal: 30,
+//         paddingVertical:15,
+//         borderRadius:25,
       
-        shadowColor: 'black',
-        shadowOffset: { width: 0, height: 10 },
-        shadowRadius: 15,
-        shadowOpacity:0.25,
-        elevation:5,
-        zIndex: 10
+//         shadowColor: 'black',
+//         shadowOffset: { width: 0, height: 10 },
+//         shadowRadius: 15,
+//         shadowOpacity:0.25,
+//         elevation:5,
+//         zIndex: 10
 
-     },
+//      },
 
-     tabbarItem:{
-        flex:1,
-        justifyContent:'center',
-        alignItems:'center',
-        gap:4
+//      tabbarItem:{
+//         flex:1,
+//         justifyContent:'center',
+//         alignItems:'center',
+//         gap:4
 
-     }
-})
+//      }
+// })
+
+const styles = StyleSheet.create({
+  tabbar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    paddingVertical: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: -10 },
+    shadowRadius: 15,
+    shadowOpacity: 0.25,
+    elevation: 5,
+    zIndex: 10,
+  },
+  tabbarItem: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 4,
+  },
+});
 
 
 
