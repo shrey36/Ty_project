@@ -11,6 +11,7 @@ import { app } from '../../Config/FirebaseConfig';
 import { Video } from 'expo-av';
 import MarkFavDebate from './MarkFavDebate';
 import LikeDebate from './LikeDebate'; // Import the LikeDebate component
+import Profile from './../../app/(tabs)/Profile';
 
 const db = getFirestore(app);
 
@@ -80,7 +81,8 @@ export default function DebateList({ debate }) {
     <View style={styles.videoContainer}>
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('/tabs/Profile')}
+         onPress={() => navigation.navigate('Profile')}
+
           style={styles.ownerInfoContainer}
         >
           <OwnerInfo debate={debate} />

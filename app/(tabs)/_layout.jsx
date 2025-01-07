@@ -12,6 +12,7 @@ import * as Linking from 'expo-linking'
 import Search from './../Search';
 import Notification from './../Notification';
 import customDrawerContent from './../../components/customDrawerContent';
+import Profile from './Profile';
 import { View, StyleSheet } from 'react-native';
 
 const Drawer = createDrawerNavigator();
@@ -108,6 +109,7 @@ function TabLayout() {
       {/* Profile */}
       <Tabs.Screen
         name="Profile"
+        
         options={{
           title: 'Profile',
           headerShown: true,

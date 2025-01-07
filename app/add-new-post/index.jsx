@@ -1,16 +1,21 @@
-import { View, Text, Image,TextInput ,StyleSheet, ScrollView, TouchableOpacity, Pressable,onPress, ToastAndroid} from 'react-native'
+// database collection name is more than enough to navigate the content to the screens
+
+import { View, Text, Image,TextInput ,StyleSheet, ScrollView, TouchableOpacity, Pressable,onPress, ToastAndroid, ActivityIndicator} from 'react-native'
 import React, { useEffect,useState } from 'react'
-import { useNavigation } from 'expo-router'
+import { router, useNavigation, useRouter } from 'expo-router'
 import Colors from './../../constants/Colors'
 import * as ImagePicker from 'expo-image-picker';
-import { refEqual } from 'firebase/firestore';
+import { doc, refEqual, setDoc } from 'firebase/firestore';
 import { storage } from '../../Config/FirebaseConfig';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { useUser } from '@clerk/clerk-expo';
 
 export default function addNewPost() {
     const navigation=useNavigation();
     const [formData,setFormData]=useState({});
     const [image,setImage]=useState();
+    const [loader,setLoader]=useState(false);
+    const route=useRouter();
 
     useEffect(()=>{
       navigation.setOptions({
@@ -55,8 +60,9 @@ export default function addNewPost() {
 
     // used to upload post images to firebase storage server
     const UploadImage=async()=>{
+        setLoader(true)
         const resp=await fetch(image);
-        const blobImage=await resp.blobl();
+        const blobImage=await resp.blob();
         const storageRef=ref(storage,'/PostUpload/'+Date.now()+'.jpg');
 
         uploadBytes(storageRef,blobImage).then((snapshot)=>{
@@ -64,11 +70,29 @@ export default function addNewPost() {
         }).then(resp=>{
             getDownloadURL(storageRef).then(async(downloadUrl)=>{
                 console.log(downloadUrl);
+                SaveFormData(downloadUrl)
             })
         }) 
 
 
     }
+
+     const SaveFormData=async(imageUrl)=>{
+     const docId=Date.now().toString();
+     await setDoc(doc(db,'Post',docId),{
+      ...formData,
+      imageUrl:imageUrl,
+      username:user?.fullName,
+      eamil:user?.primaryEmailAddress?.eamilAddress,
+      userImage:user?.imageUrl,
+      id:docId
+
+     })
+
+     setLoader(false);
+     router.replace('/(tabs)/home')
+
+     }
     
 
   return (
@@ -120,11 +144,20 @@ export default function addNewPost() {
         onChangeText={(value)=>handleInputChange('about',value)}/>
      </View>
  
-      <TouchableOpacity style={styles.button} onPress={onSubmit}>
-         <Text style={{
-            fontFamily:'outfit',
-            textAlign:'center',
-         }}>Upload</Text>
+      <TouchableOpacity style={styles.button} 
+        disabled={loader}
+        onPress={onSubmit}>
+          {/* {loader?<ActivityIndicator size={'large'}/>:
+          <Text style={{
+              fontFamily:'outfit',
+              textAlign:'center',
+          }}>Upload</Text>} */}
+            <Text style={{
+              fontFamily:'outfit',
+              textAlign:'center',
+          }}>Upload</Text>
+
+         
       </TouchableOpacity>
 
 
