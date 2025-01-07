@@ -1,34 +1,56 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, SectionList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, SectionList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useUser } from '@clerk/clerk-expo';
 import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons
-
-// Mock data for posts, reels, and debates
-const posts = [
-  { id: '1', title: 'Post 1', content: 'This is the content of post 1' },
-  { id: '2', title: 'Post 2', content: 'This is the content of post 2' },
-];
-
-const reels = [
-  { id: '1', title: 'Reel 1', content: 'This is the content of reel 1' },
-  { id: '2', title: 'Reel 2', content: 'This is the content of reel 2' },
-];
-
-const debates = [
-  { id: '1', title: 'Debate 1', content: 'This is the content of debate 1' },
-  { id: '2', title: 'Debate 2', content: 'This is the content of debate 2' },
-];
-
-const sections = [
-  { title: 'Posts', data: posts },
-  { title: 'Reels', data: reels },
-  { title: 'Debates', data: debates },
-];
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from './../../Config/FirebaseConfig'; // Ensure the path is correct
 
 export default function Profile() {
   const { user } = useUser();
-  const [activeSection, setActiveSection] = useState('Posts');
+  const [activeSection, setActiveSection] = useState('Post');
+  const [posts, setPosts] = useState([]);
+  const [reels, setReels] = useState([]);
+  const [debates, setDebates] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const postsQuery = query(collection(db, 'Post'), where('userId', '==', user.id));
+        const reelsQuery = query(collection(db, 'Reels'), where('userId', '==', user.id));
+        const debatesQuery = query(collection(db, 'Debate'), where('userId', '==', user.id));
+
+        const [postsSnapshot, reelsSnapshot, debatesSnapshot] = await Promise.all([
+          getDocs(postsQuery),
+          getDocs(reelsQuery),
+          getDocs(debatesQuery)
+        ]);
+
+        const postsData = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const reelsData = reelsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const debatesData = debatesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        setPosts(postsData);
+        setReels(reelsData);
+        setDebates(debatesData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user && user.id) {
+      fetchData();
+    }
+  }, [user]);
+
+  const sections = [
+    { title: 'Post', data: posts },
+    { title: 'Reels', data: reels },
+    { title: 'Debate', data: debates },
+  ];
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
@@ -40,6 +62,20 @@ export default function Profile() {
   const renderSectionHeader = ({ section: { title } }) => (
     <Text style={styles.sectionHeader}>{title}</Text>
   );
+
+  const renderEmptySection = (title) => (
+    <View style={styles.emptySection}>
+      <Text style={styles.emptySectionText}>No {title.toLowerCase()} available</Text>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -79,12 +115,24 @@ export default function Profile() {
       </View>
 
       {/* SectionList */}
-      <SectionList
-        sections={sections.filter((section) => section.title === activeSection)}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        renderSectionHeader={renderSectionHeader}
-      />
+      {sections.map((section) => (
+        <View key={section.title}>
+          {section.title === activeSection && (
+            <View>
+              {section.data.length > 0 ? (
+                <SectionList
+                  sections={[section]}
+                  keyExtractor={(item) => item.id}
+                  renderItem={renderItem}
+                  renderSectionHeader={renderSectionHeader}
+                />
+              ) : (
+                renderEmptySection(section.title)
+              )}
+            </View>
+          )}
+        </View>
+      ))}
     </View>
   );
 }
@@ -96,13 +144,18 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: 'whitesmoke'
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   addNewPost: {
     alignSelf: 'flex-end',
     marginBottom: 20,
   },
   imageContainer: {
     alignItems: 'center',
-    marginVertical: -10,
+    marginVertical: 25,
   },
   image: {
     width: 100,
@@ -111,7 +164,7 @@ const styles = StyleSheet.create({
   },
   details: {
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: -15,
   },
   name: {
     fontSize: 18,
@@ -161,6 +214,15 @@ const styles = StyleSheet.create({
   },
   itemContent: {
     fontSize: 14,
+    color: 'gray',
+  },
+  emptySection: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  emptySectionText: {
+    fontSize: 16,
     color: 'gray',
   },
 });
