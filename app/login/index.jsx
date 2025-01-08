@@ -40,38 +40,18 @@ export default function LoginScreen() {
   }, []);
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: Colors.White,
-      }}
-    >
+    <View style={{ flex: 1, backgroundColor: Colors.White }}>
       {/* Background Image */}
       <ImageBackground
         source={{
           uri: "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmV3c3xlbnwwfHwwfHx8MA%3D%3D",
         }}
-        style={{
-          flex: 1,
-          resizeMode: "cover",
-        }}
+        style={{ flex: 1, resizeMode: "cover" }}
       >
         {/* Overlay for better text readability */}
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.4)", // Semi-transparent overlay
-            justifyContent: "center",
-            paddingHorizontal: 20,
-          }}
-        >
+        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", paddingHorizontal: 20 }}>
           {/* App Title and Subtitle */}
-          <View
-            style={{
-              alignItems: "center",
-              marginBottom: 50,
-            }}
-          >
+          <View style={{ alignItems: "center", marginBottom: 50 }}>
             <Text
               style={{
                 fontFamily: "outfit-bold",
@@ -101,12 +81,7 @@ export default function LoginScreen() {
           </View>
 
           {/* Get Started Button */}
-          <View
-            style={{
-              justifyContent: "flex-end",
-              paddingHorizontal: 20,
-            }}
-          >
+          <View style={{ justifyContent: "flex-end", paddingHorizontal: 20 }}>
             <Pressable
               onPress={onPress}
               style={{
