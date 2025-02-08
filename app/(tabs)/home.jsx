@@ -3,7 +3,9 @@ import React from 'react';
 import Header from '../../components/Home/Header';
 import Post from '../../components/Home/Post';
 import { Link } from 'expo-router';
+import registerNNPushToken from 'native-notify';
 
+registerNNPushToken(27249, 'zQw6jAMXIfTdTfeAd3eyND');
 export default function Home() {
   return (
     <View style={styles.container}>

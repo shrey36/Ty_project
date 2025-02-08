@@ -1,8 +1,19 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useState, useEffect } from 'react-native';
+import { getUnreadNotificationInboxCount } from 'native-notify'; 
 
 export default function Header({ navigation }) {
+
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+
+  useEffect(async () => {
+    const unreadCount = await getUnreadNotificationInboxCount(27249, 'zQw6jAMXIfTdTfeAd3eyND');
+    console.log("unreadCount: ", unreadCount);
+    setUnreadNotificationCount(unreadCount);
+}, []);
+
   return (
     <View style={styles.headerContainer}>
       {/* App Logo / Name */}
@@ -27,6 +38,10 @@ export default function Header({ navigation }) {
         activeOpacity={0.7}
       >
         <Ionicons name="notifications-outline" size={24} color="black" />
+        {unreadNotificationCount
+          ?<View style={styles.readEmptyBubble}></View>
+          : null}
+        
       </TouchableOpacity>
     </View>
   );
