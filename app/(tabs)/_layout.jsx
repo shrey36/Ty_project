@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Tabs } from 'expo-router';
@@ -8,12 +8,13 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import TabBar from '../../components/TabBar';
 import Debate from './../Debate';
 import Live from './../Live';
-import * as Linking from 'expo-linking'
+import * as Linking from 'expo-linking';
 import Search from './../Search';
 import Notification from './../Notification';
 import customDrawerContent from './../../components/customDrawerContent';
 import Profile from './Profile';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
+import { getUnreadNotificationInboxCount } from 'native-notify';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -21,16 +22,35 @@ const Stack = createStackNavigator();
 // Custom Tabs Component
 function TabLayout() {
   const navigation = useNavigation();
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const unreadCount = await getUnreadNotificationInboxCount(27249, 'zQw6jAMXIfTdTfeAd3eyND');
+        console.log("unreadCount: ", unreadCount);
+        setUnreadNotificationCount(unreadCount);
+      } catch (error) {
+        console.error("Error fetching unread notification count:", error);
+      }
+    };
+
+    fetchUnreadCount(); // Initial fetch
+
+    const intervalId = setInterval(fetchUnreadCount, 10000); // Fetch every 10 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on unmount
+  }, []);
 
   // Reset the tab to 'home' when focused
-  {/*
+  /*
   useFocusEffect(
     React.useCallback(() => {
       const parentNavigation = navigation.getParent(); // Access Drawer navigation
       parentNavigation.setParams({ screen: 'home' }); // Reset to 'home'
     }, [])
   );
-  */}
+  */
 
   return (
     <Tabs tabBar={(props) => <TabBar {...props} />}>
@@ -39,7 +59,7 @@ function TabLayout() {
         options={{
           title: 'inflow',
           headerShown: true,
-          headerTitleStyle: { color: '#007AFF', fontSize:24,fontWeight:'bold' },
+          headerTitleStyle: { color: '#007AFF', fontSize: 24, fontWeight: 'bold' },
           headerLeft: () => (
             <Ionicons
               name="menu"
@@ -51,13 +71,20 @@ function TabLayout() {
           ),
           headerRight: () => (
             <View style={styles.headerRight}>
-              <Ionicons
-                name="notifications-outline"
-                size={24}
-                color="black"
-                style={{ marginRight: 10 }}
-                onPress={() => navigation.navigate('Notification')}
-              />
+              <View style={{ position: 'relative' }}>
+                <Ionicons
+                  name="notifications-outline"
+                  size={24}
+                  color="black"
+                  style={{ marginRight: 10 }}
+                  onPress={() => navigation.navigate('Notification')}
+                />
+                {unreadNotificationCount > 0 && (
+                  <View style={styles.notificationBadge}>
+                    <Text style={styles.notificationBadgeText}>{unreadNotificationCount}</Text>
+                  </View>
+                )}
+              </View>
               <Ionicons
                 name="search"
                 size={24}
@@ -109,7 +136,6 @@ function TabLayout() {
       {/* Profile */}
       <Tabs.Screen
         name="Profile"
-        
         options={{
           title: 'Profile',
           headerShown: true,
@@ -130,7 +156,6 @@ function TabLayout() {
 
 // Main Drawer Layout
 export default function MainLayout() {
-  //
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -157,10 +182,13 @@ export default function MainLayout() {
 
     const unsubscribe = Linking.addEventListener('url', handleDeepLink);
 
-    return () => unsubscribe();
-  }, []);
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [navigation]);
 
-  
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer.Navigator
@@ -177,15 +205,9 @@ export default function MainLayout() {
           },
         }}
       >
-        {/* Drawer Screen for Tabs
         <Drawer.Screen
           name="Home"
           component={TabLayout}
-          listeners={({ navigation }) => ({
-            focus: () => {
-              navigation.navigate('Home', { screen: 'home' }); // Reset to Home tab
-            },
-          })}
           options={{
             drawerLabel: 'Home',
             drawerIcon: ({ size, color }) => (
@@ -194,18 +216,6 @@ export default function MainLayout() {
             headerShown: false,
           }}
         />
-         */}
-
-          <Drawer.Screen
-          name="Home"
-          component={TabLayout}
-          options={{
-          drawerLabel: 'Home',
-          drawerIcon: ({ size, color }) => (
-          <Ionicons name="home" size={size} color={color} />
-          ),
-          headerShown: false,
-          }}/>
 
         {/* Drawer Screen for Debate */}
         <Drawer.Screen
@@ -232,10 +242,6 @@ export default function MainLayout() {
             headerShown: true,
           }}
         />
-
-
-          
-
       </Drawer.Navigator>
     </GestureHandlerRootView>
   );
@@ -246,8 +252,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  notificationBadge: {
+    position: 'absolute',
+    top: -5,
+    right: 1,
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notificationBadgeText: {
+    color: 'white',
+    fontSize: 12,
+  },
 });
-
 
 
 // import React, { useEffect } from 'react';
