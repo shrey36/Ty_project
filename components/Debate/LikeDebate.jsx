@@ -1,59 +1,64 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { getFirestore, collection, query, where, onSnapshot, getDocs, addDoc, deleteDoc, doc, updateDoc, increment } from 'firebase/firestore';
+import { getFirestore, collection, query, where, onSnapshot, getDocs, addDoc, deleteDoc } from 'firebase/firestore';
+import { useUser } from '@clerk/clerk-expo'; // Import Clerk's useUser hook
 import { app } from '../../Config/FirebaseConfig';
 
 const db = getFirestore(app);
 
-const LikeDebate = ({ debateId, userId, initialLikeCount = 0 }) => {
+const LikeDebate = ({ debateId, initialLikeCount = 0 }) => {
+  const { user } = useUser(); // Get the logged-in user from Clerk
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [isLiked, setIsLiked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    if (!user) return;
+
     const likesCollection = collection(db, 'likes');
     const q = query(likesCollection, where('debateId', '==', debateId));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       setLikeCount(querySnapshot.size);
-      const userLiked = querySnapshot.docs.some(doc => doc.data().userId === userId);
+      const userLiked = querySnapshot.docs.some(doc => doc.data().userId === user.id);
       setIsLiked(userLiked);
     });
 
     return () => unsubscribe();
-  }, [debateId, userId]);
+  }, [debateId, user]);
 
   const likeDebate = async () => {
-    const likesCollection = collection(db, 'likes');
+    if (isLoading || !user) return;
 
-    // Check if the user has already liked the debate
-    const q = query(likesCollection, where('debateId', '==', debateId), where('userId', '==', userId));
-    const querySnapshot = await getDocs(q);
+    setIsLoading(true);
+    try {
+      const likesCollection = collection(db, 'likes');
 
-    if (querySnapshot.empty) {
-      // User has not liked the debate, add a like
-      await addDoc(likesCollection, { debateId, userId, timestamp: new Date() });
-      setLikeCount(likeCount + 1);
-      setIsLiked(true);
+      // Check if the user has already liked the debate
+      const q = query(likesCollection, where('debateId', '==', debateId), where('userId', '==', user.id));
+      const querySnapshot = await getDocs(q);
 
-      // Increment the like count for the debate
-      const debatesCollection = collection(db, 'debates');
-      const debateDocRef = doc(debatesCollection, debateId);
-      await updateDoc(debateDocRef, { likeCount: increment(1) });
-    } else {
-      // User has liked the debate, remove the like
-      await deleteDoc(querySnapshot.docs[0].ref);
-      setLikeCount(likeCount - 1);
-      setIsLiked(false);
-
-      // Decrement the like count for the debate
-      const debatesCollection = collection(db, 'debates');
-      const debateDocRef = doc(debatesCollection, debateId);
-      await updateDoc(debateDocRef, { likeCount: increment(-1) });
+      if (querySnapshot.empty) {
+        // User has not liked the debate, add a like
+        await addDoc(likesCollection, { debateId, userId: user.id, timestamp: new Date() });
+        setLikeCount(likeCount + 1);
+        setIsLiked(true);
+      } else {
+        // User has liked the debate, remove the like
+        await deleteDoc(querySnapshot.docs[0].ref);
+        setLikeCount(likeCount - 1);
+        setIsLiked(false);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update like status. Please try again.');
+      console.error('Error updating like status: ', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <TouchableOpacity style={styles.likeButton} onPress={likeDebate}>
+    <TouchableOpacity style={styles.likeButton} onPress={likeDebate} disabled={isLoading || !user}>
       <Ionicons name={isLiked ? 'heart' : 'heart-outline'} size={24} color={isLiked ? 'red' : 'black'} />
       <Text style={styles.likeCount}>{likeCount}</Text>
     </TouchableOpacity>

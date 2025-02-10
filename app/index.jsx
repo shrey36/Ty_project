@@ -1,3 +1,27 @@
+// import { Redirect } from "expo-router";
+// import { useEffect } from "react";
+// import { Text, View } from "react-native";
+// import { useUser } from '@clerk/clerk-expo';
+
+// export default function Index() {
+//   const { user, isLoaded } = useUser();
+
+//   useEffect(() => {
+//     if (!isLoaded) return;
+//   }, [isLoaded]);
+
+//   if (!isLoaded) {
+//     return (
+//       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+//         <Text>Loading...</Text>
+//       </View>
+//     );
+//   }
+
+//   return <Redirect href={user ? '/(tabs)/home' : '/login'} />;
+// }
+
+
 import { Redirect, useRootNavigationState } from "expo-router";
 import { useEffect } from "react";
 import { Text, View } from "react-native";

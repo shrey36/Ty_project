@@ -1,21 +1,22 @@
-// components/Comment.jsx
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, StyleSheet, FlatList, Alert, Text, TouchableOpacity } from 'react-native';
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { useUser } from '@clerk/clerk-expo'; // Import Clerk's useUser hook
 import { app } from '../../Config/FirebaseConfig'; // Ensure this path is correct
 
 const db = getFirestore(app);
 
-export default function Comment({ postId, onClose, userName, userId }) {
+export default function Comment({ postId, onClose }) {
+    const { user } = useUser(); // Get the logged-in user from Clerk
     const [commentText, setCommentText] = useState('');
     const [comments, setComments] = useState([]);
 
     const handleSendComment = async () => {
         if (commentText.trim() === '') return;
 
-        if (!postId || !userName || !userId) {
+        if (!postId || !user) {
             Alert.alert('Error', 'Missing required information. Please try again.');
-            console.error('Missing required information:', { postId, userName, userId });
+            console.error('Missing required information:', { postId, user });
             return;
         }
 
@@ -23,8 +24,8 @@ export default function Comment({ postId, onClose, userName, userId }) {
             const commentsCollection = collection(db, 'comments');
             await addDoc(commentsCollection, {
                 postId,
-                userId,
-                userName,
+                userId: user.id,
+                userName: user.firstName || 'Anonymous', // Use user's first name or 'Anonymous'
                 text: commentText,
                 timestamp: new Date(),
             });
@@ -64,18 +65,22 @@ export default function Comment({ postId, onClose, userName, userId }) {
                     </View>
                 )}
             />
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.input}
-                    value={commentText}
-                    onChangeText={setCommentText}
-                    placeholder="Write a comment..."
-                    placeholderTextColor="#aaa"
-                />
-                <TouchableOpacity style={styles.sendButton} onPress={handleSendComment}>
-                    <Text style={styles.sendButtonText}>Send</Text>
-                </TouchableOpacity>
-            </View>
+            {user ? (
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        style={styles.input}
+                        value={commentText}
+                        onChangeText={setCommentText}
+                        placeholder="Write a comment..."
+                        placeholderTextColor="#aaa"
+                    />
+                    <TouchableOpacity style={styles.sendButton} onPress={handleSendComment}>
+                        <Text style={styles.sendButtonText}>Send</Text>
+                    </TouchableOpacity>
+                </View>
+            ) : (
+                <Text style={styles.loginMessage}>Please log in to comment.</Text>
+            )}
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                 <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
@@ -143,5 +148,10 @@ const styles = StyleSheet.create({
     closeButtonText: {
         color: '#007AFF',
         fontSize: 16,
+    },
+    loginMessage: {
+        color: '#555',
+        fontSize: 14,
+        marginTop: 10,
     },
 });

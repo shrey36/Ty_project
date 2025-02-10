@@ -1,65 +1,64 @@
-// LikePost.jsx
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { getFirestore, collection, query, where, onSnapshot, getDocs, addDoc, deleteDoc } from 'firebase/firestore';
+import { useUser } from '@clerk/clerk-expo'; // Import Clerk's useUser hook
 import { app } from '../../Config/FirebaseConfig';
 
 const db = getFirestore(app);
 
-const LikePost = ({ postId, userId, initialLikeCount = 0 }) => {
+const LikePost = ({ postId, initialLikeCount = 0 }) => {
+  const { user } = useUser(); // Get the logged-in user from Clerk
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [isLiked, setIsLiked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    console.log('LikePost useEffect triggered for postId:', postId, 'userId:', userId);
+    if (!user) return;
+
     const likePostCollection = collection(db, 'likePost');
     const q = query(likePostCollection, where('postId', '==', postId));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      console.log('LikePost snapshot:', querySnapshot.docs);
       setLikeCount(querySnapshot.size);
-      const userLiked = querySnapshot.docs.some(doc => doc.data().userId === userId);
+      const userLiked = querySnapshot.docs.some(doc => doc.data().userId === user.id);
       setIsLiked(userLiked);
     });
 
     return () => unsubscribe();
-  }, [postId, userId]);
+  }, [postId, user]);
 
   const toggleLike = async () => {
-    console.log('toggleLike called for postId:', postId, 'userId:', userId);
-    const likePostCollection = collection(db, 'likePost');
+    if (isLoading || !user) return;
 
-    // Check if the user has already liked the post
-    const q = query(likePostCollection, where('postId', '==', postId), where('userId', '==', userId));
-    const querySnapshot = await getDocs(q);
+    setIsLoading(true);
+    try {
+      const likePostCollection = collection(db, 'likePost');
 
-    if (querySnapshot.empty) {
-      // User has not liked the post, add a like
-      try {
-        await addDoc(likePostCollection, { postId, userId, timestamp: new Date() });
+      // Check if the user has already liked the post
+      const q = query(likePostCollection, where('postId', '==', postId), where('userId', '==', user.id));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        // User has not liked the post, add a like
+        await addDoc(likePostCollection, { postId, userId: user.id, timestamp: new Date() });
         setLikeCount(likeCount + 1);
         setIsLiked(true);
-        console.log('Like added successfully');
-      } catch (error) {
-        Alert.alert('Error', 'Failed to like the post. Please try again.');
-        console.error('Error adding like:', error);
-      }
-    } else {
-      // User has liked the post, remove the like
-      try {
+      } else {
+        // User has liked the post, remove the like
         await deleteDoc(querySnapshot.docs[0].ref);
         setLikeCount(likeCount - 1);
         setIsLiked(false);
-        console.log('Like removed successfully');
-      } catch (error) {
-        Alert.alert('Error', 'Failed to unlike the post. Please try again.');
-        console.error('Error removing like:', error);
       }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update like status. Please try again.');
+      console.error('Error updating like status: ', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <TouchableOpacity style={styles.likeButton} onPress={toggleLike}>
+    <TouchableOpacity style={styles.likeButton} onPress={toggleLike} disabled={isLoading || !user}>
       <Ionicons name={isLiked ? 'heart' : 'heart-outline'} size={24} color={isLiked ? 'red' : 'black'} />
       <Text style={styles.likeCount}>{likeCount}</Text>
     </TouchableOpacity>
