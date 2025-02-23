@@ -13,7 +13,7 @@ import Search from './../Search';
 import Notification from './../Notification';
 import customDrawerContent from './../../components/customDrawerContent';
 import Profile from './Profile';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, BackHandler } from 'react-native';
 import { getUnreadNotificationInboxCount } from 'native-notify';
 
 const Drawer = createDrawerNavigator();
@@ -42,15 +42,21 @@ function TabLayout() {
     return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, []);
 
-  // Reset the tab to 'home' when focused
-  /*
   useFocusEffect(
     React.useCallback(() => {
-      const parentNavigation = navigation.getParent(); // Access Drawer navigation
-      parentNavigation.setParams({ screen: 'home' }); // Reset to 'home'
-    }, [])
+      const onBackPress = () => {
+        if (navigation.isFocused() && navigation.canGoBack()) {
+          BackHandler.exitApp(); // Exit the app
+          return true;
+        }
+        return false;
+      };
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => subscription.remove();
+    }, [navigation])
   );
-  */
 
   return (
     <Tabs tabBar={(props) => <TabBar {...props} />}>
@@ -180,12 +186,10 @@ export default function MainLayout() {
       }
     });
 
-    const unsubscribe = Linking.addEventListener('url', handleDeepLink);
+    const subscription = Linking.addEventListener('url', handleDeepLink);
 
     return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
+      subscription.remove(); // Use the remove method to unsubscribe
     };
   }, [navigation]);
 
@@ -268,6 +272,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
+
 
 
 // import React, { useEffect } from 'react';

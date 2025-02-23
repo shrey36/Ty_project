@@ -21,7 +21,6 @@
 //   return <Redirect href={user ? '/(tabs)/home' : '/login'} />;
 // }
 
-
 import { Redirect, useRootNavigationState } from "expo-router";
 import { useEffect } from "react";
 import { Text, View } from "react-native";

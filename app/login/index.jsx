@@ -127,15 +127,12 @@
 
 
 
-
-
 import { ImageBackground, Text, View, Pressable } from "react-native";
-import React from "react";
+import React, { useCallback } from "react";
 import Colors from "../../constants/Colors";
 import * as WebBrowser from "expo-web-browser";
 import { useOAuth } from "@clerk/clerk-expo";
 import * as Linking from "expo-linking";
-import { useCallback } from "react";
 
 export const useWarmUpBrowser = () => {
   React.useEffect(() => {
@@ -160,8 +157,7 @@ export default function LoginScreen() {
       });
 
       if (createdSessionId) {
-        // Uncomment this line to set active session:
-        // await setActive({ sessionId: createdSessionId });
+        await setActive({ sessionId: createdSessionId });
       } else {
         // Use signIn or signUp for next steps such as MFA
       }
