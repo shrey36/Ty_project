@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, SectionList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useUser } from '@clerk/clerk-expo';
 import { Link } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons'; // Import Ionicons
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from './../../Config/FirebaseConfig'; // Ensure the path is correct
+import { Ionicons } from '@expo/vector-icons';
+import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+import { db } from './../../Config/FirebaseConfig';
 
 export default function Profile() {
   const { user } = useUser();
@@ -13,6 +13,7 @@ export default function Profile() {
   const [reels, setReels] = useState([]);
   const [debates, setDebates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [followerCount, setFollowerCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,6 +35,14 @@ export default function Profile() {
         setPosts(postsData);
         setReels(reelsData);
         setDebates(debatesData);
+
+        // Fetch follower count
+        const followerDocRef = doc(db, 'FollowerCollection', user.id);
+        const followerDocSnap = await getDoc(followerDocRef);
+
+        if (followerDocSnap.exists()) {
+          setFollowerCount(followerDocSnap.data().FollowerCount);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -46,39 +55,36 @@ export default function Profile() {
     }
   }, [user]);
 
-  const sections = [
-    { title: 'Post', data: posts },
-    { title: 'Reels', data: reels },
-    { title: 'Debate', data: debates },
-  ];
+  const sections = {
+    Post: posts,
+    Reels: reels,
+    Debate: debates,
+  };
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
-      <Text style={styles.itemTitle}>{item.title}</Text>
-      <Text style={styles.itemContent}>{item.content}</Text>
+      {item.imageUrl ? (
+        <Image
+          source={{ uri: item.imageUrl }}
+          style={styles.postImage}
+          onError={() => console.log('Failed to load post image')}
+        />
+      ) : (
+        <View style={styles.emptyImage} />
+      )}
+      <Text style={styles.itemTitle}>{item.Caption || 'No Title'}</Text>
+      <Text style={styles.itemContent}>{item.about || 'No Description'}</Text>
     </View>
   );
 
-  const renderSectionHeader = ({ section: { title } }) => (
-    <Text style={styles.sectionHeader}>{title}</Text>
-  );
-
-  const renderEmptySection = (title) => (
+  const renderEmptySection = () => (
     <View style={styles.emptySection}>
-      <Text style={styles.emptySectionText}>No {title.toLowerCase()} available</Text>
+      <Text style={styles.emptySectionText}>No {activeSection.toLowerCase()} available</Text>
     </View>
   );
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
+  const renderHeader = () => (
+    <>
       <Link href={'/add-new-post'} style={styles.addNewPost}>
         <Ionicons name="add-circle-outline" size={32} color="black" />
       </Link>
@@ -99,41 +105,46 @@ export default function Profile() {
       <View style={styles.details}>
         <Text style={styles.name}>{user?.fullName || 'Guest User'}</Text>
         <Text style={styles.email}>{user?.primaryEmailAddress?.emailAddress || 'No Email'}</Text>
+        <View style={styles.followerContainer}>
+          <Text style={styles.followerCount}>{followerCount}</Text>
+          <Text style={styles.followerLabel}>Followers</Text>
+        </View>
       </View>
 
       {/* Section Tabs */}
       <View style={styles.tabsContainer}>
-        {sections.map((section) => (
+        {Object.keys(sections).map((section) => (
           <TouchableOpacity
-            key={section.title}
-            style={[styles.tab, activeSection === section.title && styles.activeTab]}
-            onPress={() => setActiveSection(section.title)}
+            key={section}
+            style={[styles.tab, activeSection === section && styles.activeTab]}
+            onPress={() => setActiveSection(section)}
           >
-            <Text style={styles.tabText}>{section.title}</Text>
+            <Text style={styles.tabText}>{section}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* SectionList */}
-      {sections.map((section) => (
-        <View key={section.title}>
-          {section.title === activeSection && (
-            <View>
-              {section.data.length > 0 ? (
-                <SectionList
-                  sections={[section]}
-                  keyExtractor={(item) => item.id}
-                  renderItem={renderItem}
-                  renderSectionHeader={renderSectionHeader}
-                />
-              ) : (
-                renderEmptySection(section.title)
-              )}
-            </View>
-          )}
-        </View>
-      ))}
-    </View>
+      <Text style={styles.sectionHeader}>{activeSection}</Text>
+    </>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  return (
+    <FlatList
+      data={sections[activeSection]}
+      keyExtractor={(item) => item.id}
+      renderItem={renderItem}
+      ListHeaderComponent={renderHeader}
+      ListEmptyComponent={renderEmptySection}
+      contentContainerStyle={styles.scrollContainer}
+    />
   );
 }
 
@@ -141,8 +152,10 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: 'whitesmoke'
+  },
+  scrollContainer: {
+    padding: 20,
   },
   loadingContainer: {
     flex: 1,
@@ -171,6 +184,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   email: {
+    fontSize: 14,
+    color: 'gray',
+  },
+  followerContainer: {
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  followerCount: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  followerLabel: {
     fontSize: 14,
     color: 'gray',
   },
@@ -207,6 +233,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
+  },
+  postImage: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  emptyImage: {
+    width: '100%',
+    height: 200,
+    backgroundColor: '#ddd',
+    borderRadius: 5,
+    marginBottom: 10,
   },
   itemTitle: {
     fontSize: 16,

@@ -126,16 +126,15 @@
 
 
 
-
 import { ImageBackground, Text, View, Pressable } from "react-native";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import Colors from "../../constants/Colors";
 import * as WebBrowser from "expo-web-browser";
 import { useOAuth } from "@clerk/clerk-expo";
 import * as Linking from "expo-linking";
 
 export const useWarmUpBrowser = () => {
-  React.useEffect(() => {
+  useEffect(() => {
     // Warm up the android browser to improve UX
     void WebBrowser.warmUpAsync();
     return () => {
@@ -152,9 +151,11 @@ export default function LoginScreen() {
 
   const onPress = useCallback(async () => {
     try {
+      console.log("Starting OAuth flow...");
       const { createdSessionId, signIn, signUp, setActive } = await startOAuthFlow({
         redirectUrl: Linking.createURL("/(tabs)/home", { scheme: "myapp" }),
       });
+      console.log("OAuth flow completed.");
 
       if (createdSessionId) {
         await setActive({ sessionId: createdSessionId });
@@ -168,16 +169,13 @@ export default function LoginScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.White }}>
-      {/* Background Image */}
       <ImageBackground
         source={{
           uri: "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmV3c3xlbnwwfHwwfHx8MA%3D%3D",
         }}
         style={{ flex: 1, resizeMode: "cover" }}
       >
-        {/* Overlay for better text readability */}
         <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", paddingHorizontal: 20 }}>
-          {/* App Title and Subtitle */}
           <View style={{ alignItems: "center", marginBottom: 50 }}>
             <Text
               style={{
@@ -207,7 +205,6 @@ export default function LoginScreen() {
             </Text>
           </View>
 
-          {/* Get Started Button */}
           <View style={{ justifyContent: "flex-end", paddingHorizontal: 20 }}>
             <Pressable
               onPress={onPress}
@@ -236,7 +233,6 @@ export default function LoginScreen() {
             </Pressable>
           </View>
 
-          {/* Terms Section */}
           <Text
             style={{
               fontFamily: "outfit",

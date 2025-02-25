@@ -32,7 +32,7 @@ export default function Index() {
 
   useEffect(() => {
     CheckNavLoaded();
-  }, []);
+  }, [rootNavigationState.key]);
 
   const CheckNavLoaded = () => {
     if (!rootNavigationState.key) return null;

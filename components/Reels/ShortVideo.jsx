@@ -25,7 +25,7 @@ export default function ShortVideo() {
       });
     });
 
-    setVideoList(videos); // Corrected typo here
+    setVideoList(videos);
     setRefreshing(false);
   };
 

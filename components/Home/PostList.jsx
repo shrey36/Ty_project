@@ -1,9 +1,7 @@
-// PostList.jsx
 import { View, Text, Image, StyleSheet, TouchableOpacity, Share, Alert, Modal } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
-import OwnerInfo from '../PostDetails/OwnerInfo';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { reportPost } from '../../Shared/reportPost';
 import ReportModal from '../../Shared/ReportModel';
@@ -14,13 +12,17 @@ import LikePost from './LikePost'; // Import the LikePost component
 
 const db = getFirestore(app);
 
-export default function PostList({ post, userName }) {
+export default function PostList({ post }) {
   const router = useRouter();
   const navigation = useNavigation();
   const [isReportModalVisible, setReportModalVisible] = useState(false); // Report part
   const [isCommentModalVisible, setCommentModalVisible] = useState(false); // Comment Part
   const [commentCount, setCommentCount] = useState(0); // Comment Count
-  const userId = 'currentUserId'; // Replace with the actual user ID
+
+  // Log the post data to verify its structure
+  useEffect(() => {
+    console.log('Post data:', post);
+  }, [post]);
 
   const openCommentModal = () => {
     setCommentModalVisible(true);
@@ -30,8 +32,12 @@ export default function PostList({ post, userName }) {
     setCommentModalVisible(false);
   };
 
-  const extractedUserName = post?.user?.name || userName || 'Unknown';
-  const extractedUserId = post?.user?.id || userId || 'Unknown';
+  // Use data from the post for username and user image
+  const extractedUserName = post?.username || 'Unknown';
+  const extractedUserImage = post?.userImage || '';
+
+  console.log('Extracted User Name:', extractedUserName);
+  console.log('Extracted User Image:', extractedUserImage);
 
   const onShare = async () => {
     try {
@@ -59,10 +65,10 @@ export default function PostList({ post, userName }) {
   // Report calling
   const onReport = async (reason) => {
     const ownerInfo = {
-      name: post.user.name, // Assuming post.user.name contains the owner's name
-      email: post.user.email, // Assuming post.user.email contains the owner's email
+      name: post.username, // Use the username from the post
+      email: post.email, // Use the email from the post
     };
-    await reportPost(post.id, 'userId', reason, ownerInfo);
+    await reportPost(post.id, post.userId, reason, ownerInfo);
     Alert.alert('Post Reported', 'Your report has been submitted successfully.');
   };
 
@@ -93,7 +99,17 @@ export default function PostList({ post, userName }) {
           onPress={() => navigation.navigate('Profile')}
           style={styles.ownerInfoContainer}
         >
-          <OwnerInfo post={post} />
+          {/* Display user image */}
+          {extractedUserImage ? (
+            <Image
+              source={{ uri: extractedUserImage }}
+              style={styles.userImage}
+              onError={() => console.log('Failed to load user image')}
+            />
+          ) : (
+            <View style={styles.defaultUserImage} />
+          )}
+          <Text style={styles.username}>{extractedUserName}</Text>
         </TouchableOpacity>
 
         {/* Report */}
@@ -110,7 +126,7 @@ export default function PostList({ post, userName }) {
 
       {/* Like and Comments */}
       <View style={styles.likeCommentContainer}>
-        <LikePost postId={post.id} userId={userId} initialLikeCount={post.likeCount || 0} />
+        <LikePost postId={post.id} userId={post.userId} initialLikeCount={post.likeCount || 0} />
         <TouchableOpacity
           style={styles.comments}
           onPress={openCommentModal}
@@ -146,7 +162,7 @@ export default function PostList({ post, userName }) {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalHeader}>Comments</Text>
-            <Comment postId={post?.id} onClose={closeCommentModal} userName={extractedUserName} userId={extractedUserId} />
+            <Comment postId={post?.id} onClose={closeCommentModal} userName={extractedUserName} userId={post.userId} />
           </View>
         </View>
       </Modal>
@@ -183,7 +199,8 @@ const styles = StyleSheet.create({
   },
   ownerInfoContainer: {
     flex: 1,
-    marginLeft: -29
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   reportButton: {
     marginRight: -5,
@@ -193,6 +210,24 @@ const styles = StyleSheet.create({
     height: 250, // Image height
     resizeMode: 'cover', // Ensure proper aspect ratio while covering the area
     borderRadius: 5, // Rounded corners for the image
+  },
+  userImage: {
+    width: 40, // Adjust the size as needed
+    height: 40,
+    borderRadius: 20, // Circular image
+    marginRight: 10,
+  },
+  defaultUserImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#ddd', // Default background color for missing images
+    marginRight: 10,
+  },
+  username: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
   },
   likeCommentContainer: {
     flexDirection: 'row',
