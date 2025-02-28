@@ -5,8 +5,9 @@ import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from './../../Config/FirebaseConfig';
+import { AVPlaybackStatus, Video } from 'expo-av'; // Use Expo AV for video playback
 
-const Item = React.memo(({ item }) => (
+const PostItem = React.memo(({ item }) => (
   <View style={styles.itemContainer}>
     {item.imageUrl ? (
       <Image
@@ -22,6 +23,30 @@ const Item = React.memo(({ item }) => (
   </View>
 ));
 
+const ReelItem = React.memo(({ item }) => {
+  const videoRef = React.useRef(null);
+  const [status, setStatus] = useState({});
+
+  return (
+    <View style={styles.itemContainer}>
+      {item.mediaUrl ? (
+        <Video
+          ref={videoRef}
+          style={styles.postImage}
+          source={{ uri: item.mediaUrl }}
+          useNativeControls
+          resizeMode="cover"
+          onPlaybackStatusUpdate={status => setStatus(() => status)}
+        />
+      ) : (
+        <View style={styles.emptyImage} />
+      )}
+      <Text style={styles.itemTitle}>{item.Caption || 'No Title'}</Text>
+      <Text style={styles.itemContent}>{item.about || 'No Description'}</Text>
+    </View>
+  );
+});
+
 export default function Profile() {
   const { user } = useUser();
   const [activeSection, setActiveSection] = useState('Post');
@@ -31,48 +56,63 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [followerCount, setFollowerCount] = useState(0);
 
-  const fetchData = useCallback(async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       const postsQuery = query(collection(db, 'Post'), where('userId', '==', user.id));
-      const reelsQuery = query(collection(db, 'Reels'), where('userId', '==', user.id));
-      const debatesQuery = query(collection(db, 'Debate'), where('userId', '==', user.id));
-
-      const [postsSnapshot, reelsSnapshot, debatesSnapshot] = await Promise.all([
-        getDocs(postsQuery),
-        getDocs(reelsQuery),
-        getDocs(debatesQuery)
-      ]);
-
+      const postsSnapshot = await getDocs(postsQuery);
       const postsData = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      const reelsData = reelsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      const debatesData = debatesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
       console.log('Fetched Posts Data:', postsData);
-      console.log('Fetched Reels Data:', reelsData); // Log the fetched reels data
-      console.log('Fetched Debates Data:', debatesData);
-
       setPosts(postsData);
-      setReels(reelsData);
-      setDebates(debatesData);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    }
+  }, [user]);
 
+  const fetchReels = useCallback(async () => {
+    try {
+      const reelsQuery = query(collection(db, 'Reels'), where('userId', '==', user.id));
+      const reelsSnapshot = await getDocs(reelsQuery);
+      const reelsData = reelsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      console.log('Fetched Reels Data:', reelsData);
+      setReels(reelsData);
+    } catch (error) {
+      console.error('Error fetching reels:', error);
+    }
+  }, [user]);
+
+  const fetchDebates = useCallback(async () => {
+    try {
+      const debatesQuery = query(collection(db, 'Debate'), where('userId', '==', user.id));
+      const debatesSnapshot = await getDocs(debatesQuery);
+      const debatesData = debatesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      console.log('Fetched Debates Data:', debatesData);
+      setDebates(debatesData);
+    } catch (error) {
+      console.error('Error fetching debates:', error);
+    }
+  }, [user]);
+
+  const fetchFollowerCount = useCallback(async () => {
+    try {
       const followerDocRef = doc(db, 'FollowerCollection', user.id);
       const followerDocSnap = await getDoc(followerDocRef);
-
       if (followerDocSnap.exists()) {
         setFollowerCount(followerDocSnap.data().FollowerCount);
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
+      console.error('Error fetching follower count:', error);
     }
   }, [user]);
 
   useEffect(() => {
     if (user && user.id) {
-      fetchData();
+      fetchPosts();
+      fetchReels();
+      fetchDebates();
+      fetchFollowerCount();
+      setLoading(false);
     }
-  }, [user, fetchData]);
+  }, [user, fetchPosts, fetchReels, fetchDebates, fetchFollowerCount]);
 
   const sections = {
     Post: posts,
@@ -80,7 +120,15 @@ export default function Profile() {
     Debate: debates,
   };
 
-  const renderItem = useCallback(({ item }) => <Item item={item} />, []);
+  const renderItem = useCallback(({ item }) => {
+    if (activeSection === 'Post') {
+      return <PostItem item={item} />;
+    } else if (activeSection === 'Reels') {
+      return <ReelItem item={item} />;
+    } else {
+      return <PostItem item={item} />; // Assuming Debates use the same structure as Posts
+    }
+  }, [activeSection]);
 
   const renderEmptySection = () => (
     <View style={styles.emptySection}>
