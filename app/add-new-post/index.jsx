@@ -67,11 +67,11 @@ export default function AddNewPost() {
       const mediaType = mime.getType(media);
       if (mediaType.startsWith('image')) {
         console.log('Uploading image to Firestore...');
-        await saveFormData(uploadResult.secure_url, 'posts');
+        await saveFormData(uploadResult.secure_url, 'Post', 'imageUrl');
         route.replace('/(tabs)/home');
       } else if (mediaType.startsWith('video')) {
         console.log('Uploading video to Firestore...');
-        await saveFormData(uploadResult.secure_url, 'Reels');
+        await saveFormData(uploadResult.secure_url, 'Reels', 'mediaUrl');
         route.replace('/(tabs)/Reels');
       } else {
         console.error('Unsupported media type');
@@ -85,7 +85,7 @@ export default function AddNewPost() {
     }
   };
 
-  const saveFormData = async (mediaUrl, collectionName) => {
+  const saveFormData = async (url, collectionName, urlFieldName) => {
     if (!user) {
       console.error('User is not authenticated');
       return;
@@ -94,7 +94,7 @@ export default function AddNewPost() {
     try {
       await addDoc(collection(db, collectionName), {
         ...formData,
-        mediaUrl: mediaUrl,
+        [urlFieldName]: url,
         userId: user.id,
         username: user.firstName || 'Anonymous',
         email: user.primaryEmailAddress.emailAddress || 'unknown@example.com',
@@ -126,6 +126,7 @@ export default function AddNewPost() {
           <Image
             source={{ uri: media }}
             style={{ width: 100, height: 100, borderRadius: 15, borderColor: Colors.GRAY }}
+            onError={(error) => console.error('Error loading image:', error.nativeEvent.error)}
           />
         )}
       </Pressable>

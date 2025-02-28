@@ -1,10 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useUser } from '@clerk/clerk-expo';
 import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from './../../Config/FirebaseConfig';
+
+const Item = React.memo(({ item }) => (
+  <View style={styles.itemContainer}>
+    {item.imageUrl ? (
+      <Image
+        source={{ uri: item.imageUrl }}
+        style={styles.postImage}
+        onError={() => console.log('Failed to load post image')}
+      />
+    ) : (
+      <View style={styles.emptyImage} />
+    )}
+    <Text style={styles.itemTitle}>{item.Caption || 'No Title'}</Text>
+    <Text style={styles.itemContent}>{item.about || 'No Description'}</Text>
+  </View>
+));
 
 export default function Profile() {
   const { user } = useUser();
@@ -15,45 +31,48 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [followerCount, setFollowerCount] = useState(0);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const postsQuery = query(collection(db, 'Post'), where('userId', '==', user.id));
-        const reelsQuery = query(collection(db, 'Reels'), where('userId', '==', user.id));
-        const debatesQuery = query(collection(db, 'Debate'), where('userId', '==', user.id));
+  const fetchData = useCallback(async () => {
+    try {
+      const postsQuery = query(collection(db, 'Post'), where('userId', '==', user.id));
+      const reelsQuery = query(collection(db, 'Reels'), where('userId', '==', user.id));
+      const debatesQuery = query(collection(db, 'Debate'), where('userId', '==', user.id));
 
-        const [postsSnapshot, reelsSnapshot, debatesSnapshot] = await Promise.all([
-          getDocs(postsQuery),
-          getDocs(reelsQuery),
-          getDocs(debatesQuery)
-        ]);
+      const [postsSnapshot, reelsSnapshot, debatesSnapshot] = await Promise.all([
+        getDocs(postsQuery),
+        getDocs(reelsQuery),
+        getDocs(debatesQuery)
+      ]);
 
-        const postsData = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const reelsData = reelsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const debatesData = debatesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const postsData = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const reelsData = reelsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const debatesData = debatesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        setPosts(postsData);
-        setReels(reelsData);
-        setDebates(debatesData);
+      console.log('Fetched Posts Data:', postsData);
+      console.log('Fetched Reels Data:', reelsData); // Log the fetched reels data
+      console.log('Fetched Debates Data:', debatesData);
 
-        // Fetch follower count
-        const followerDocRef = doc(db, 'FollowerCollection', user.id);
-        const followerDocSnap = await getDoc(followerDocRef);
+      setPosts(postsData);
+      setReels(reelsData);
+      setDebates(debatesData);
 
-        if (followerDocSnap.exists()) {
-          setFollowerCount(followerDocSnap.data().FollowerCount);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
+      const followerDocRef = doc(db, 'FollowerCollection', user.id);
+      const followerDocSnap = await getDoc(followerDocRef);
+
+      if (followerDocSnap.exists()) {
+        setFollowerCount(followerDocSnap.data().FollowerCount);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
 
+  useEffect(() => {
     if (user && user.id) {
       fetchData();
     }
-  }, [user]);
+  }, [user, fetchData]);
 
   const sections = {
     Post: posts,
@@ -61,21 +80,7 @@ export default function Profile() {
     Debate: debates,
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      {item.imageUrl ? (
-        <Image
-          source={{ uri: item.imageUrl }}
-          style={styles.postImage}
-          onError={() => console.log('Failed to load post image')}
-        />
-      ) : (
-        <View style={styles.emptyImage} />
-      )}
-      <Text style={styles.itemTitle}>{item.Caption || 'No Title'}</Text>
-      <Text style={styles.itemContent}>{item.about || 'No Description'}</Text>
-    </View>
-  );
+  const renderItem = useCallback(({ item }) => <Item item={item} />, []);
 
   const renderEmptySection = () => (
     <View style={styles.emptySection}>
@@ -89,7 +94,6 @@ export default function Profile() {
         <Ionicons name="add-circle-outline" size={32} color="black" />
       </Link>
 
-      {/* Profile Image */}
       <View style={styles.imageContainer}>
         {user?.imageUrl ? (
           <Image
@@ -97,11 +101,10 @@ export default function Profile() {
             style={styles.image}
           />
         ) : (
-          <Text>No Image</Text> // Fallback if image URL is not available
+          <Text>No Image</Text>
         )}
       </View>
 
-      {/* User Details */}
       <View style={styles.details}>
         <Text style={styles.name}>{user?.fullName || 'Guest User'}</Text>
         <Text style={styles.email}>{user?.primaryEmailAddress?.emailAddress || 'No Email'}</Text>
@@ -111,7 +114,6 @@ export default function Profile() {
         </View>
       </View>
 
-      {/* Section Tabs */}
       <View style={styles.tabsContainer}>
         {Object.keys(sections).map((section) => (
           <TouchableOpacity
@@ -148,7 +150,6 @@ export default function Profile() {
   );
 }
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
