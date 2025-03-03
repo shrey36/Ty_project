@@ -6,6 +6,7 @@ import MarkFav from '../MarkFav';
 
 export default function PostInfo({ post }) {
 
+
     // Debugging: Log the post object to check its contents
   console.log('Post Object in PostInfo:', JSON.stringify(post, (key, value) => (typeof value === 'object' && value !== null ? JSON.stringify(value) : value), 2));
 

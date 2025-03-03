@@ -11,8 +11,7 @@ export default function About({ post }) {
       
       {/* Description and Caption */}
       <Text style={styles.descriptionText}>Description</Text> 
-      <Text style={styles.captionText}>{post?.Caption}</Text> 
-
+    
       {/* Post about section */}
       <View style={styles.aboutContainer}>
         <Text style={styles.aboutText}>{post?.about}</Text>

@@ -23,6 +23,8 @@ export default function PostDetails() {
   return (
     <View>
          <ScrollView>
+
+        
         
          {/* Post Info*/}
          <PostInfo post={post} />

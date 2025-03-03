@@ -182,12 +182,13 @@
 // ============== CODE WITH UI=============================
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, TextInput, ActivityIndicator, View, Text, FlatList, Image
+  StyleSheet, TextInput, ActivityIndicator, View, Text, FlatList, Image, TouchableOpacity
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from './../Config/FirebaseConfig'; // Adjust the import path if necessary
+import { useRouter } from 'expo-router';
 
 export default function Search() {
   const [isLoading, setIsLoading] = useState(true);
@@ -195,6 +196,7 @@ export default function Search() {
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState(null);
   const [allPosts, setAllPosts] = useState([]);
+  const router = useRouter();
 
   // Fetch all posts when the component loads
   useEffect(() => {
@@ -235,12 +237,19 @@ export default function Search() {
     }
   };
 
+  const handlePostPress = (post) => {
+    router.push({
+      pathname: '/post-details',
+      params: post,
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Search Bar Section */}
       <View style={styles.searchContainer}>
         <TextInput
-          placeholder="Search..."
+          placeholder="What are you looking for today...."
           style={styles.searchBox}
           autoCapitalize="none"
           autoCorrect={false}
@@ -278,7 +287,7 @@ export default function Search() {
         data={searchResults}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.postContainer}>
+          <TouchableOpacity onPress={() => handlePostPress(item)} style={styles.postContainer}>
             {/* User Info Section: Display user image and username */}
             <View style={styles.userInfo}>
               <Image source={{ uri: item.userImage }} style={styles.userImage} />
@@ -290,7 +299,7 @@ export default function Search() {
 
             {/* Caption Section: Display the post caption */}
             <Text style={styles.caption}>{item.Caption}</Text>
-          </View>
+          </TouchableOpacity>
         )}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
@@ -329,7 +338,7 @@ const styles = StyleSheet.create({
   },
   searchBox: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
     color: '#333',
   },
   listContainer: {
@@ -352,8 +361,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   userImage: {
-    width: 50,
-    height: 50,
+    width: 35,
+    height: 35,
     borderRadius: 25,
     marginRight: 12,
   },
@@ -369,6 +378,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   caption: {
+    fontWeight:"600",
     fontSize: 15,
     color: "#555",
     marginTop: 5,
