@@ -1,193 +1,13 @@
-// import React, { useState, useEffect } from 'react';
-// import {
-//   StyleSheet, TextInput, ActivityIndicator, View, Text, FlatList, Image
-// } from 'react-native';
-// import { SafeAreaView } from 'react-native-safe-area-context';
-// import Ionicons from '@expo/vector-icons/Ionicons';
-// import { collection, getDocs } from 'firebase/firestore';
-// import { db } from './../Config/FirebaseConfig'; // Adjust the import path if necessary
-
-// export default function Search() {
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [searchResults, setSearchResults] = useState([]);
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [error, setError] = useState(null);
-//   const [allPosts, setAllPosts] = useState([]);
-
-//   // Fetch all posts when the component loads
-//   useEffect(() => {
-//     const fetchPosts = async () => {
-//       try {
-//         const postsCollection = collection(db, 'Post');
-//         const querySnapshot = await getDocs(postsCollection);
-//         const posts = querySnapshot.docs.map(doc => ({
-//           id: doc.id,
-//           ...doc.data()
-//         }));
-
-//         setAllPosts(posts);
-//         setSearchResults(posts);
-//       } catch (error) {
-//         console.error("Firebase Error: ", error);
-//         setError("Error fetching data. Please try again.");
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     };
-
-//     fetchPosts();
-//   }, []);
-
-//   // Function to filter posts based on user input
-//   const handleSearch = (searchTerm) => {
-//     setSearchQuery(searchTerm);
-
-//     if (searchTerm.trim() === "") {
-//       setSearchResults(allPosts);
-//     } else {
-//       const filteredResults = allPosts.filter(post =>
-//         post.Caption.toLowerCase().includes(searchTerm.toLowerCase())
-//       );
-
-//       setSearchResults(filteredResults);
-//     }
-//   };
-
-//   return (
-//     <SafeAreaView style={styles.container}>
-//       {/* Search Bar */}
-//       <View style={styles.searchContainer}>
-//         <Ionicons name="search" size={20} color="gray" style={styles.searchIcon} />
-//         <TextInput
-//           placeholder="Enter search query"
-//           style={styles.searchBox}
-//           autoCapitalize="none"
-//           autoCorrect={false}
-//           value={searchQuery}
-//           onChangeText={handleSearch}
-//           clearButtonMode="always"
-//         />
-//       </View>
-
-//       {/* Loading Indicator */}
-//       {isLoading && (
-//         <View style={styles.centeredView}>
-//           <ActivityIndicator size="large" color="#5500dc" />
-//         </View>
-//       )}
-
-//       {/* Error Handling */}
-//       {error && (
-//         <View style={styles.centeredView}>
-//           <Text>{error}</Text>
-//         </View>
-//       )}
-
-//       {/* No Results */}
-//       {!isLoading && searchResults.length === 0 && (
-//         <View style={styles.centeredView}>
-//           <Text>No related content available</Text>
-//         </View>
-//       )}
-
-//       {/* Search Results List */}
-//       <FlatList
-//         data={searchResults}
-//         keyExtractor={(item) => item.id}
-//         renderItem={({ item }) => (
-//           <View style={styles.postContainer}>
-//             {/* Username at the top of the image */}
-//             <View style={styles.userInfo}>
-//               <Image source={{ uri: item.userImage }} style={styles.userImage} />
-//               <Text style={styles.username}>{item.username || "Unknown User"}</Text>
-//             </View>
-
-//             {/* Post Image */}
-//             {item.imageUrl && <Image source={{ uri: item.imageUrl }} style={styles.postImage} />}
-
-//             {/* Caption below the image */}
-//             <Text style={styles.caption}>{item.Caption}</Text>
-//           </View>
-//         )}
-//       />
-//     </SafeAreaView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//     marginHorizontal: 20,
-//   },
-//   centeredView: {
-//     flex: 1,
-//     justifyContent: "center",
-//     alignItems: "center",
-//   },
-//   searchContainer: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     backgroundColor: "#f0f0f0",
-//     borderColor: "#ddd",
-//     borderWidth: 1,
-//     borderRadius: 8,
-//     paddingHorizontal: 10,
-//     marginBottom: 10,
-//   },
-//   searchIcon: {
-//     marginRight: 8,
-//   },
-//   searchBox: {
-//     flex: 1,
-//     paddingVertical: 12,
-//     fontSize: 16,
-//   },
-//   postContainer: {
-//     marginBottom: 20,
-//     borderBottomWidth: 1,
-//     borderBottomColor: "#ddd",
-//     paddingBottom: 10,
-//   },
-//   userInfo: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     marginBottom: 5,
-//   },
-//   userImage: {
-//     width: 40,
-//     height: 40,
-//     borderRadius: 20,
-//     marginRight: 10,
-//   },
-//   username: {
-//     fontSize: 16,
-//     fontWeight: "bold",
-//     color: "#333",
-//   },
-//   postImage: {
-//     width: "100%",
-//     height: 250,
-//     borderRadius: 10,
-//   },
-//   caption: {
-//     fontSize: 15,
-//     color: "#555",
-//     marginTop: 5,
-//   },
-// });
-
-
-
-// ============== CODE WITH UI=============================
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, TextInput, ActivityIndicator, View, Text, FlatList, Image, TouchableOpacity
+  StyleSheet, TextInput, ActivityIndicator, View, Text, FlatList, Image, TouchableOpacity, 
+  Animated, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard
 } from 'react-native';
+import { Video } from 'expo-av';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from './../Config/FirebaseConfig'; // Adjust the import path if necessary
+import { db } from './../Config/FirebaseConfig';
 import { useRouter } from 'expo-router';
 
 export default function Search() {
@@ -195,22 +15,42 @@ export default function Search() {
   const [searchResults, setSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState(null);
-  const [allPosts, setAllPosts] = useState([]);
+  const [allContent, setAllContent] = useState([]);
   const router = useRouter();
+  const fadeAnim = useState(new Animated.Value(0))[0];
 
-  // Fetch all posts when the component loads
   useEffect(() => {
-    const fetchPosts = async () => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
+  useEffect(() => {
+    const fetchContent = async () => {
       try {
         const postsCollection = collection(db, 'Post');
-        const querySnapshot = await getDocs(postsCollection);
-        const posts = querySnapshot.docs.map(doc => ({
+        const reelsCollection = collection(db, 'Reels');
+
+        const [postsSnapshot, reelsSnapshot] = await Promise.all([
+          getDocs(postsCollection),
+          getDocs(reelsCollection)
+        ]);
+
+        const posts = postsSnapshot.docs.map(doc => ({
           id: doc.id,
+          type: 'post',
           ...doc.data()
         }));
 
-        setAllPosts(posts);
-        setSearchResults(posts);
+        const reels = reelsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          type: 'reel',
+          ...doc.data()
+        }));
+
+        setAllContent([...posts, ...reels]);
       } catch (error) {
         console.error("Firebase Error: ", error);
         setError("Error fetching data. Please try again.");
@@ -219,99 +59,117 @@ export default function Search() {
       }
     };
 
-    fetchPosts();
+    fetchContent();
   }, []);
 
-  // Function to filter posts based on user input
   const handleSearch = (searchTerm) => {
     setSearchQuery(searchTerm);
+    if (!searchTerm.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    const filteredResults = allContent.filter(content =>
+      content.Caption?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setSearchResults(filteredResults);
+  };
 
-    if (searchTerm.trim() === "") {
-      setSearchResults(allPosts);
-    } else {
-      const filteredResults = allPosts.filter(post =>
-        post.Caption.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-
-      setSearchResults(filteredResults);
+  const handleItemClick = (item) => {
+    if (item.type === 'post') {
+      router.push({
+        pathname: '/post-details',
+        params: item,
+      });
     }
   };
 
-  const handlePostPress = (post) => {
-    router.push({
-      pathname: '/post-details',
-      params: post,
-    });
-  };
-
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Search Bar Section */}
-      <View style={styles.searchContainer}>
-        <TextInput
-          placeholder="What are you looking for today...."
-          style={styles.searchBox}
-          autoCapitalize="none"
-          autoCorrect={false}
-          value={searchQuery}
-          onChangeText={handleSearch}
-          clearButtonMode="always"
-          placeholderTextColor="#888"
-        />
-        <Ionicons name="search" size={22} color="#888" style={styles.searchIcon} />
-      </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <SafeAreaView style={styles.container}>
+          <Animated.View style={[styles.searchContainer, { opacity: fadeAnim }]}>
+            <Ionicons name="search" size={22} color="#888" style={styles.searchIcon} />
+            <TextInput
+              placeholder="Search for posts or reels..."
+              style={styles.searchBox}
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={searchQuery}
+              onChangeText={handleSearch}
+              onSubmitEditing={() => handleSearch(searchQuery)}
+              clearButtonMode="always"
+              placeholderTextColor="#888"
+              returnKeyType="search"
+            />
+          </Animated.View>
 
-      {/* Loading Indicator Section */}
-      {isLoading && (
-        <View style={styles.centeredView}>
-          <ActivityIndicator size="large" color="#555" />
-        </View>
-      )}
-
-      {/* Error Handling Section */}
-      {error && (
-        <View style={styles.centeredView}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      )}
-
-      {/* No Results Section */}
-      {!isLoading && searchResults.length === 0 && (
-        <View style={styles.centeredView}>
-          <Text style={styles.noResultsText}>No related content available</Text>
-        </View>
-      )}
-
-      {/* Search Results List Section */}
-      <FlatList
-        data={searchResults}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handlePostPress(item)} style={styles.postContainer}>
-            {/* User Info Section: Display user image and username */}
-            <View style={styles.userInfo}>
-              <Image source={{ uri: item.userImage }} style={styles.userImage} />
-              <Text style={styles.username}>{item.username || "Unknown User"}</Text>
+          {isLoading && (
+            <View style={styles.centeredView}>
+              <ActivityIndicator size="large" color="#555" />
             </View>
+          )}
 
-            {/* Post Image Section: Display the post image if available */}
-            {item.imageUrl && <Image source={{ uri: item.imageUrl }} style={styles.postImage} />}
+          {error && (
+            <View style={styles.centeredView}>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          )}
 
-            {/* Caption Section: Display the post caption */}
-            <Text style={styles.caption}>{item.Caption}</Text>
-          </TouchableOpacity>
-        )}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-      />
-    </SafeAreaView>
+          {!isLoading && searchQuery.trim() !== "" && searchResults.length === 0 && (
+            <View style={styles.centeredView}>
+              <Text style={styles.noResultsText}>No results found</Text>
+            </View>
+          )}
+
+          {searchQuery.trim() !== "" && (
+            <FlatList
+              data={searchResults}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity 
+                  onPress={() => handleItemClick(item)} 
+                  style={styles.postContainer} 
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.userInfo}>
+                    <Image source={{ uri: item.userImage }} style={styles.userImage} />
+                    <Text style={styles.username}>{item.username || "Unknown User"}</Text>
+                  </View>
+
+                  {item.type === 'post' && item.imageUrl && (
+                    <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+                  )}
+
+                  {item.type === 'reel' && item.videoUrl && (
+                    <Video
+                      source={{ uri: item.videoUrl }}
+                      style={styles.video}
+                      useNativeControls
+                      resizeMode="cover"
+                      isLooping
+                    />
+                  )}
+
+                  <Text style={styles.caption}>{item.Caption}</Text>
+                </TouchableOpacity>
+              )}
+              contentContainerStyle={styles.listContainer}
+              showsVerticalScrollIndicator={false}
+            />
+          )}
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f9f9f9',
     paddingHorizontal: 16,
   },
   centeredView: {
@@ -323,9 +181,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fff",
-    borderRadius: 12,
+    borderRadius: 30,
     paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingVertical: 12,
     marginVertical: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -334,11 +192,11 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   searchIcon: {
-    marginLeft: 10, // Position the search icon to the right
+    marginRight: 10,
   },
   searchBox: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 16,
     color: '#333',
   },
   listContainer: {
@@ -361,14 +219,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   userImage: {
-    width: 35,
-    height: 35,
-    borderRadius: 25,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     marginRight: 12,
   },
   username: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "bold",
     color: '#333',
   },
   postImage: {
@@ -377,8 +235,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 8,
   },
+  video: {
+    width: '100%',
+    height: 300,
+    borderRadius: 10,
+    marginTop: 8,
+  },
   caption: {
-    fontWeight:"600",
+    fontWeight: "600",
     fontSize: 15,
     color: "#555",
     marginTop: 5,

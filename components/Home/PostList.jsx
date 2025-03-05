@@ -96,7 +96,7 @@ export default function PostList({ post }) {
     >
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Profile')}
+          onPress={() => navigation.navigate('DynamicProfile', { userId: post.userId })}
           style={styles.ownerInfoContainer}
         >
           {/* Display user image */}

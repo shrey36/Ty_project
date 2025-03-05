@@ -13,6 +13,7 @@ import Search from './../Search';
 import Notification from './../Notification';
 import customDrawerContent from './../../components/customDrawerContent';
 import Profile from './Profile';
+import DynamicProfile from './../../components/PostDetails/DynamicProfile'; // Import DynamicProfile
 import { View, StyleSheet, Text, BackHandler } from 'react-native';
 import { getUnreadNotificationInboxCount } from 'native-notify';
 
@@ -246,6 +247,17 @@ export default function MainLayout() {
             headerShown: true,
           }}
         />
+
+        {/* Drawer Screen for DynamicProfile */}
+        <Drawer.Screen
+          name="DynamicProfile"
+          component={DynamicProfile}
+          options={{
+            drawerLabel: () => null, // Hide from drawer
+            drawerItemStyle: { height: 0 }, // Hide from drawer
+            headerShown:false
+          }}
+        />
       </Drawer.Navigator>
     </GestureHandlerRootView>
   );
@@ -272,7 +284,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
-
 
 
 // import React, { useEffect } from 'react';

@@ -60,6 +60,7 @@ import { useFonts } from "expo-font";
 import * as SecureStore from 'expo-secure-store';
 import { ClerkProvider } from "@clerk/clerk-expo";
 
+
 const tokenCache = {
   async getToken(key) {
     try {
@@ -100,6 +101,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="login/index" options={{ headerShown: false }} />
+     
       </Stack>
     </ClerkProvider>
   );
