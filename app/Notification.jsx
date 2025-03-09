@@ -49,15 +49,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fafafa',
-    paddingTop: 15,
   },
   notification: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 30,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+    paddingTop: 25,
   },
   avatar: {
     width: 36,

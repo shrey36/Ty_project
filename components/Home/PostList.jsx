@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   },
   postImage: {
     width: '100%', // Image will take up full width
-    height: 250, // Image height
+    height: 350,// Image height
     resizeMode: 'cover', // Ensure proper aspect ratio while covering the area
     borderRadius: 5, // Rounded corners for the image
   },

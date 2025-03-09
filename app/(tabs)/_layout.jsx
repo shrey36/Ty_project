@@ -66,9 +66,9 @@ function TabLayout() {
         options={{
           title: 'inflow',
           headerShown: true,
-          headerTitleStyle: { color: '#007AFF', fontSize: 24, fontWeight: 'bold' },
+          headerTitleStyle: { color: '#007AFF', fontSize: 24,fontFamily: "outfit-bold"},
           headerLeft: () => (
-            <Ionicons
+            <Ionicons 
               name="menu"
               size={26}
               color="black"
@@ -196,14 +196,14 @@ export default function MainLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer.Navigator
+      <Drawer.Navigator 
         drawerContent={customDrawerContent}
         screenOptions={{
           drawerStyle: {
             backgroundColor: '#f8f9fa',
             width: 250,
           },
-          drawerActiveTintColor: '#47c7f5',
+          drawerActiveTintColor: '#007AFF',
           drawerInactiveTintColor: '#333',
           drawerLabelStyle: {
             fontSize: 16,
@@ -242,7 +242,7 @@ export default function MainLayout() {
           options={{
             drawerLabel: 'Live',
             drawerIcon: ({ size, color }) => (
-              <Ionicons name="radio" size={24} color="black" />
+              <Ionicons name="radio" size={size} color={color} />
             ),
             headerShown: true,
           }}

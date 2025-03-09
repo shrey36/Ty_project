@@ -74,10 +74,7 @@ export default function Saved() {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-      
         backgroundColor: 'white',
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd'
       }}>
         
       </View>

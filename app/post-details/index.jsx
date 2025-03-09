@@ -15,10 +15,11 @@ export default function PostDetails() {
 
   useEffect(()=>{
       navigation.setOptions({
-          headerTransparent:true,
+          headerTransparent:false,
           headerTitle:''
-      })
-  },[])
+         
+      });
+  }, []);
 
   return (
     <View>

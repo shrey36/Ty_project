@@ -19,7 +19,7 @@ export default function AddNewPost() {
 
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: 'Add New Post'
+      headerTitle: 'New Post'
     });
   }, []);
 
@@ -113,21 +113,26 @@ export default function AddNewPost() {
   };
 
   return (
-    <ScrollView style={{ padding: 20 }}>
-      <Text style={{ fontFamily: 'outfit-medium', fontSize: 20 }}>Add New Post</Text>
+    <ScrollView style={{ padding: 30 }}>
+      {/* <Text style={{ fontFamily: 'outfit-medium', fontSize: 20, textAlign: 'center', marginVertical: 15 }}>Add New Post</Text> */}
 
       <Pressable onPress={mediaPicker}>
         {!media ? (
-          <Image
-            source={require('./../../assets/images/placeholder.jpg')}
-            style={{ width: 100, height: 100, borderRadius: 15, borderWidth: 1, borderColor: Colors.GRAY }}
-          />
+          <View style={styles.container}>
+            <Image
+              source={require('./../../assets/images/placeholder2.png')}
+              style={styles.image}
+            />
+          </View>
         ) : (
-          <Image
-            source={{ uri: media }}
-            style={{ width: 100, height: 100, borderRadius: 15, borderColor: Colors.GRAY }}
-            onError={(error) => console.error('Error loading image:', error.nativeEvent.error)}
-          />
+          
+          <View style={styles.container}>
+            <Image
+              source={{ uri: media }}
+              style={styles.image}
+              onError={(error) => console.error('Error loading image:', error.nativeEvent.error)}
+            />
+          </View>
         )}
       </Pressable>
 
@@ -149,38 +154,53 @@ export default function AddNewPost() {
         <Text style={styles.label}>Description</Text>
         <TextInput
           style={styles.input}
-          numberOfLines={5}
+          numberOfLines={17}
           multiline={true}
           onChangeText={(value) => handleInputChange('about', value)}
         />
       </View>
 
       <TouchableOpacity style={styles.button} disabled={loader} onPress={onSubmit}>
-        <Text style={{ fontFamily: 'outfit', textAlign: 'center' }}>Upload</Text>
+        <Text style={{ fontFamily: 'outfit', textAlign: 'center', color: '#fff' }}>Upload</Text>
       </TouchableOpacity>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1, // Takes full screen height
+    justifyContent: 'center', // Center vertically
+    alignItems: 'center', // Center horizontally
+  },
+  image: {
+    width: 400,
+    height: 300,
+    borderRadius: 12,
+    borderWidth: 0.25,
+    borderColor: 'gray',
+    marginVertical: 15
+  },
+
   inputContainer: {
     marginVertical: 5
   },
   input: {
     padding: 15,
     backgroundColor: '#fff',
-    borderRadius: 7,
+    borderRadius: 8,
     fontFamily: 'outfit'
   },
   label: {
-    marginVertical: 5,
+    marginVertical: 10,
     fontFamily: 'outfit'
   },
   button: {
     padding: 15,
-    backgroundColor: Colors.Blue,
-    borderRadius: 7,
-    marginVertical: 10,
-    marginBottom: 50
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
+    marginTop: 25,
+    marginBottom: 15,
+
   }
 });

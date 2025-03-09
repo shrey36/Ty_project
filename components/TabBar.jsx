@@ -19,7 +19,7 @@ const TabBar = ({state, descriptors, navigation} ) => {
 
     }
 
-    const primaryColor = '#0891b2';
+    const primaryColor = '#007AFF'; 
     const greyColor = '#737373';
 
   return (
