@@ -21,9 +21,8 @@ export default function PostInfo({ post }) {
         source={{ uri: post.imageUrl }}
         style={{
           width: '100%',
-          height: 350,  // Reduced the height of the image
+          height: 250,  // Reduced the height of the image
           resizeMode: 'cover',
-          borderRadius: 8,
          //  borderRadius: 10,  // Optional: rounded corners for the image
           marginTop: 10,     // Added some space above the image
         }}
